@@ -29,7 +29,8 @@ class _MyAppState extends State<MyApp> {
           ElevatedButton(
             onPressed: () async {
               try {
-                final folder = await _safUtilPlugin.openDirectory();
+                final folder =
+                    await _safUtilPlugin.openDirectory(writePermission: true);
                 if (folder == null) {
                   return;
                 }

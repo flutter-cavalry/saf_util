@@ -34,6 +34,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   private var activity: Activity? = null
 
   private var pendingResult: Result? = null
+  private var pendingArguments: PendingArguments? = null
   private val requestCodeOpenDocumentTree = 1001
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -353,6 +354,8 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       "openDirectory" -> {
         try {
           val initialUri = call.argument<String>("initialUri")
+          val writePermission = call.argument<Boolean>("writePermission") ?: false
+          val persistablePermission = call.argument<Boolean>("persistablePermission") ?: false
 
           if (activity == null) {
             result.error("NO_ACTIVITY", "Activity is null", null)
@@ -365,12 +368,22 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
           // Store the result to return the URI later
           pendingResult = result
+          pendingArguments = PendingArguments(writePermission, persistablePermission)
           val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
           if (initialUri != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
               intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(initialUri))
             }
           }
+          if (persistablePermission) {
+            intent.addFlags(
+              Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+            )
+          }
+          intent.addFlags(
+            if (writePermission) Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            else Intent.FLAG_GRANT_READ_URI_PERMISSION
+          )
 
           activity?.startActivityForResult(intent, requestCodeOpenDocumentTree)
         } catch (err: Exception) {
@@ -384,14 +397,26 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
   // Handle the result of the folder picker
   private fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+    if (pendingResult == null) {
+      return
+    }
     if (requestCode == requestCodeOpenDocumentTree) {
       if (resultCode == Activity.RESULT_OK && data != null) {
         val uri: Uri? = data.data
-        pendingResult?.success(uri.toString())  // Return the URI to Flutter
+        if (uri != null && pendingArguments != null) {
+          if (pendingArguments!!.persistablePermission) {
+            context.contentResolver.takePersistableUriPermission(
+              uri,
+              Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
+          }
+        }
+        pendingResult?.success(uri?.toString())  // Return the URI to Flutter
       } else {
         pendingResult?.success(null)
       }
       pendingResult = null
+      pendingArguments = null
     }
   }
 
@@ -489,3 +514,8 @@ internal data class UriInfo(val uri: Uri, val name: String, val isDir: Boolean) 
     )
   }
 }
+
+internal data class PendingArguments(
+  val writePermission: Boolean,
+  val persistablePermission: Boolean
+)

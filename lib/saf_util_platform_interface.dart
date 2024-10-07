@@ -54,7 +54,10 @@ abstract class SafUtilPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<String?> openDirectory({String? initialUri}) {
+  Future<String?> openDirectory(
+      {String? initialUri,
+      bool? writePermission,
+      bool? persistablePermission}) {
     throw UnimplementedError('openDirectory() has not been implemented.');
   }
 

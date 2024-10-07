@@ -2,8 +2,14 @@ import 'saf_util_platform_interface.dart';
 
 class SafUtil {
   /// Shows a folder picker dialog and returns the selected folder URI.
-  Future<String?> openDirectory({String? initialUri}) {
-    return SafUtilPlatform.instance.openDirectory(initialUri: initialUri);
+  Future<String?> openDirectory(
+      {String? initialUri,
+      bool? writePermission,
+      bool? persistablePermission}) {
+    return SafUtilPlatform.instance.openDirectory(
+        initialUri: initialUri,
+        writePermission: writePermission,
+        persistablePermission: persistablePermission);
   }
 
   /// Lists the contents of the specified directory URI.

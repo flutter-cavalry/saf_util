@@ -9,7 +9,7 @@ Util functions for SAF (Storage Access Framework). Note that this package doesn'
 ```dart
 class SafUtil {
   /// Shows a folder picker dialog and returns the selected folder URI.
-  Future<String?> openDirectory({String? initialUri});
+  Future<String?> openDirectory({String? initialUri, bool? writePermission, bool? persistablePermission});
 
   /// Lists the contents of the specified directory URI.
   ///
