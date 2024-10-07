@@ -51,6 +51,8 @@ class _FolderRouteState extends State<FolderRoute> {
   Widget _buildBody() {
     return Column(
       children: [
+        Text('Folder: ${widget.folder}'),
+        const SizedBox(height: 20),
         Row(
           children: [
             ElevatedButton(
@@ -130,47 +132,101 @@ class _FolderRouteState extends State<FolderRoute> {
     );
   }
 
+  Widget _buildItemView(SafDocumentFile df) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        df.isDir
+            ? Row(
+                children: [
+                  const Icon(Icons.folder),
+                  const SizedBox(width: 10),
+                  Text(df.name),
+                  const SizedBox(width: 10),
+                  IconButton(
+                      onPressed: () {
+                        final folderRoute = FolderRoute(folder: df.uri);
+                        Navigator.push<void>(
+                          context,
+                          MaterialPageRoute(builder: (context) => folderRoute),
+                        );
+                      },
+                      icon: const Icon(Icons.arrow_forward)),
+                ],
+              )
+            : Text(df.name),
+        const SizedBox(height: 10),
+        Text(df.uri),
+        if (df.lastModified != 0) ...[
+          const SizedBox(height: 10),
+          Text(
+              'Last modified: ${DateTime.fromMillisecondsSinceEpoch(df.lastModified)}'),
+        ],
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            OutlinedButton(
+                onPressed: () async {
+                  try {
+                    if (await FcQuickDialog.confirm(context,
+                            title: 'Are you sure you want to delete this item?',
+                            yesText: 'Yes',
+                            noText: 'No') !=
+                        true) {
+                      return;
+                    }
+                    await _safUtilPlugin.delete(df.uri, df.isDir);
+                    await _reload();
+                  } catch (err) {
+                    if (!mounted) {
+                      return;
+                    }
+                    await FcQuickDialog.error(context,
+                        title: 'Error', error: err, okText: 'OK');
+                  }
+                },
+                child: const Text('Delete')),
+            const SizedBox(width: 10),
+            OutlinedButton(
+                onPressed: () async {
+                  try {
+                    final isTree = await _safUtilPlugin.documentFileFromUri(
+                        df.uri, df.isDir);
+                    if (!mounted) {
+                      return;
+                    }
+                    await FcQuickDialog.info(context,
+                        title: 'documentFileFromUri',
+                        content: isTree.toString(),
+                        okText: 'OK');
+                  } catch (err) {
+                    if (!mounted) {
+                      return;
+                    }
+                    await FcQuickDialog.error(context,
+                        title: 'Error', error: err, okText: 'OK');
+                  }
+                },
+                child: const Text('documentFileFromUri'))
+          ],
+        )
+      ],
+    );
+  }
+
   Widget _buildList() {
-    return ListView.builder(
-      itemCount: _contents.length,
-      itemBuilder: (context, index) {
-        final file = _contents[index];
-        return ListTile(
-          title: Text(
-              file.isDir ? '📦 ${file.name}' : '${file.name} (${file.length})'),
-          subtitle: Text(file.uri),
-          trailing: OutlinedButton(
-              onPressed: () async {
-                try {
-                  if (await FcQuickDialog.confirm(context,
-                          title: 'Are you sure you want to delete this item?',
-                          yesText: 'Yes',
-                          noText: 'No') !=
-                      true) {
-                    return;
-                  }
-                  await _safUtilPlugin.delete(file.uri, file.isDir);
-                  await _reload();
-                } catch (err) {
-                  if (!context.mounted) {
-                    return;
-                  }
-                  await FcQuickDialog.error(context,
-                      title: 'Error', error: err, okText: 'OK');
-                }
-              },
-              child: const Text('Delete')),
-          onTap: file.isDir
-              ? () {
-                  final folderRoute = FolderRoute(folder: file.uri);
-                  Navigator.push<void>(
-                    context,
-                    MaterialPageRoute(builder: (context) => folderRoute),
-                  );
-                }
-              : null,
-        );
-      },
+    return SingleChildScrollView(
+      child: Column(
+        children: _contents
+            .map((df) => Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                padding: const EdgeInsets.all(8),
+                child: _buildItemView(df)))
+            .toList(),
+      ),
     );
   }
 }

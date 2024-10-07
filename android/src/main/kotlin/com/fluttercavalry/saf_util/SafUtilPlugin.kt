@@ -487,7 +487,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       "isDir" to isDir,
       "name" to name,
       "length" to length,
-      "lastMod" to lastMod,
+      "lastModified" to lastMod,
     )
   }
 }
