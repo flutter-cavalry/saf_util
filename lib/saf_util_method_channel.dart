@@ -86,18 +86,6 @@ class MethodChannelSafUtil extends SafUtilPlatform {
   }
 
   @override
-  Future<SafUriInfo?> childUri(String uri, String name) async {
-    final map = await methodChannel.invokeMapMethod<String, dynamic>(
-      'childUri',
-      {'uri': uri, 'name': name},
-    );
-    if (map == null) {
-      return null;
-    }
-    return SafUriInfo.fromMap(map);
-  }
-
-  @override
   Future<SafUriInfo> rename(String uri, bool isDir, String newName) async {
     final map = await methodChannel.invokeMapMethod<String, dynamic>(
       'rename',

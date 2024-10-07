@@ -70,7 +70,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
           try {
             val uri = call.argument<String>("uri") as String
 
-            val dir = documentFileFromUri(uri, true)
+            val dir = documentFileFromUri(uri, true) ?: throw Exception("Failed to get DocumentFile from $uri")
             val resolver = context.contentResolver
             val mUri = dir.uri
             val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(
@@ -136,6 +136,12 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             val isDir = call.argument<Boolean>("isDir") as Boolean
 
             val df = documentFileFromUri(uri, isDir)
+            if (df == null) {
+              launch(Dispatchers.Main) {
+                result.success(null)
+              }
+              return@launch
+            }
             launch(Dispatchers.Main) {
               result.success(fileObjMapFromDocumentFile(df))
             }
@@ -154,6 +160,12 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             val isDir = call.argument<Boolean>("isDir") as Boolean
 
             val df = documentFileFromUri(uri, isDir)
+            if (df == null) {
+              launch(Dispatchers.Main) {
+                result.success(false)
+              }
+              return@launch
+            }
             launch(Dispatchers.Main) {
               result.success(df.exists())
             }
@@ -171,7 +183,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             val uri = call.argument<String>("uri") as String
             val isDir = call.argument<Boolean>("isDir") as Boolean
 
-            val df = documentFileFromUri(uri, isDir)
+            val df = documentFileFromUri(uri, isDir) ?: throw Exception("Failed to get DocumentFile from $uri")
             launch(Dispatchers.Main) {
               result.success(df.delete())
             }
@@ -190,7 +202,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             val names =
               call.argument<ArrayList<String>>("names") as ArrayList<String>
 
-            var curDocument = documentFileFromUri(uri, true)
+            var curDocument = documentFileFromUri(uri, true) ?: throw Exception("Failed to get DocumentFile from $uri")
             for (curName in names) {
               val findRes = findDFChild(curDocument.uri, curName)
               val childDocument: DocumentFile? = if (findRes == null) {
@@ -224,7 +236,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             val uri = call.argument<String>("uri") as String
             val names = call.argument<ArrayList<String>>("names") as ArrayList<String>
 
-            var curDocument = documentFileFromUri(uri, true)
+            var curDocument = documentFileFromUri(uri, true) ?: throw Exception("Failed to get DocumentFile from $uri")
             for (curName in names) {
               val findRes = findDFChild(curDocument.uri, curName)
               if (findRes == null) {
@@ -233,36 +245,11 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                 }
                 return@launch
               }
-              curDocument = documentFileFromUriObj(findRes.uri, findRes.isDir)
+              curDocument = documentFileFromUriObj(findRes.uri, findRes.isDir) ?: throw Exception("Failed to get DocumentFile at $curName")
             }
 
             launch(Dispatchers.Main) {
               result.success(fileObjMapFromDocumentFile(curDocument))
-            }
-          } catch (err: Exception) {
-            launch(Dispatchers.Main) {
-              result.error("PluginError", err.message, null)
-            }
-          }
-        }
-      }
-
-      "childUri" -> {
-        CoroutineScope(Dispatchers.IO).launch {
-          try {
-            val uri = call.argument<String>("uri") as String
-            val name = call.argument<String>("name") as String
-
-            val parentDocument = documentFileFromUri(uri, true)
-            val findRes = findDFChild(parentDocument.uri, name)
-            if (findRes == null) {
-              launch(Dispatchers.Main) {
-                result.success(null)
-              }
-              return@launch
-            }
-            launch(Dispatchers.Main) {
-              result.success(findRes.toMap())
             }
           } catch (err: Exception) {
             launch(Dispatchers.Main) {
@@ -279,7 +266,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             val isDir = call.argument<Boolean>("isDir") as Boolean
             val newName = call.argument<String>("newName") as String
 
-            val df = documentFileFromUri(uri, isDir)
+            val df = documentFileFromUri(uri, isDir) ?: throw Exception("Failed to get DocumentFile from $uri")
             val success = df.renameTo(newName)
             if (!success) {
               throw Exception("Failed to rename to $newName")
@@ -320,8 +307,9 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
               newParentUriObj
             ) ?: throw Exception("Failed to move document")
 
+            val resultDF = documentFileFromUriObj(resUri, isDir) ?: throw Exception("Failed to get DocumentFile from $resUri")
             launch(Dispatchers.Main) {
-              result.success(fileObjMapFromDocumentFile(documentFileFromUriObj(resUri, isDir)))
+              result.success(fileObjMapFromDocumentFile(resultDF))
             }
           } catch (err: Exception) {
             launch(Dispatchers.Main) {
@@ -351,8 +339,10 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
               newParentUriObj
             ) ?: throw Exception("Failed to move document")
 
+            val resultDF = documentFileFromUriObj(resUri, isDir) ?: throw Exception("Failed to get DocumentFile from $resUri")
+
             launch(Dispatchers.Main) {
-              result.success(fileObjMapFromDocumentFile(documentFileFromUriObj(resUri, isDir)))
+              result.success(fileObjMapFromDocumentFile(resultDF))
             }
           } catch (err: Exception) {
             launch(Dispatchers.Main) {
@@ -411,19 +401,16 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     channel.setMethodCallHandler(null)
   }
 
-  private fun documentFileFromUri(uri: String, isDir: Boolean): DocumentFile {
+  private fun documentFileFromUri(uri: String, isDir: Boolean): DocumentFile? {
     val uriObj = Uri.parse(uri)
     return documentFileFromUriObj(uriObj, isDir)
   }
 
-  private fun documentFileFromUriObj(uriObj: Uri, isDir: Boolean): DocumentFile {
+  private fun documentFileFromUriObj(uriObj: Uri, isDir: Boolean): DocumentFile? {
     val res = if (isDir) {
       DocumentFile.fromTreeUri(context, uriObj)
     } else {
       DocumentFile.fromSingleUri(context, uriObj)
-    }
-    if (res == null) {
-      throw Exception("Failed to get DocumentFile from URI")
     }
     return res
   }

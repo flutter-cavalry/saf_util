@@ -46,12 +46,6 @@ class SafUtil {
   /// [name] is the name of the child file or directory.
   Future<SafDocumentFile?>child(String uri, List<String> names);
 
-  /// Gets the child file or directory URI with the specified name.
-  ///
-  /// [uri] is the URI of the parent directory.
-  /// [name] is the name of the child file or directory.
-  Future<SafUriInfo?> childUri(String uri, String name);
-
   /// Renames the specified file or directory.
   ///
   /// [uri] is the URI of the file or directory.

@@ -53,14 +53,6 @@ class SafUtil {
     return SafUtilPlatform.instance.child(uri, names);
   }
 
-  /// Gets the child file or directory URI with the specified name.
-  ///
-  /// [uri] is the URI of the parent directory.
-  /// [name] is the name of the child file or directory.
-  Future<SafUriInfo?> childUri(String uri, String name) {
-    return SafUtilPlatform.instance.childUri(uri, name);
-  }
-
   /// Renames the specified file or directory.
   ///
   /// [uri] is the URI of the file or directory.

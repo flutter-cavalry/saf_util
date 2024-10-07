@@ -107,10 +107,6 @@ abstract class SafUtilPlatform extends PlatformInterface {
     throw UnimplementedError('child() has not been implemented.');
   }
 
-  Future<SafUriInfo?> childUri(String uri, String name) {
-    throw UnimplementedError('childUri() has not been implemented.');
-  }
-
   Future<SafUriInfo> rename(String uri, bool isDir, String newName) {
     throw UnimplementedError('rename() has not been implemented.');
   }
