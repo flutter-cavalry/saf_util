@@ -105,9 +105,30 @@ class _FolderRouteState extends State<FolderRoute> {
       itemBuilder: (context, index) {
         final file = _contents[index];
         return ListTile(
-          title: Text(file.isDir ? file.name : '${file.name} (${file.length})'),
+          title: Text(
+              file.isDir ? '📦 ${file.name}' : '${file.name} (${file.length})'),
           subtitle: Text(file.uri),
-          trailing: file.isDir ? const Icon(Icons.folder) : null,
+          trailing: OutlinedButton(
+              onPressed: () async {
+                try {
+                  if (await FcQuickDialog.confirm(context,
+                          title: 'Are you sure you want to delete this item?',
+                          yesText: 'Yes',
+                          noText: 'No') !=
+                      true) {
+                    return;
+                  }
+                  await _safUtilPlugin.delete(file.uri, file.isDir);
+                  await _reload();
+                } catch (err) {
+                  if (!context.mounted) {
+                    return;
+                  }
+                  await FcQuickDialog.error(context,
+                      title: 'Error', error: err, okText: 'OK');
+                }
+              },
+              child: const Text('Delete')),
           onTap: file.isDir
               ? () {
                   final folderRoute = FolderRoute(folder: file.uri);
