@@ -2,6 +2,10 @@ import 'saf_util_platform_interface.dart';
 
 class SafUtil {
   /// Shows a folder picker dialog and returns the selected folder URI.
+  ///
+  /// [initialUri] is the initial URI to show in the dialog.
+  /// [writePermission] is true if the folder should have write permission.
+  /// [persistablePermission] is true if the permission should be persistable.
   Future<String?> openDirectory(
       {String? initialUri,
       bool? writePermission,
@@ -46,7 +50,7 @@ class SafUtil {
   /// Creates a directory and all its parent directories.
   ///
   /// [uri] is the URI of the directory to create.
-  /// [path] is the list of parent directory names.
+  /// [names] is a list of directory names to create.
   Future<SafDocumentFile> mkdirp(String uri, List<String> names) {
     return SafUtilPlatform.instance.mkdirp(uri, names);
   }
@@ -54,7 +58,7 @@ class SafUtil {
   /// Gets the child file or directory with the specified name.
   ///
   /// [uri] is the URI of the parent directory.
-  /// [name] is the name of the child file or directory.
+  /// [names] is a list of directory names to traverse.
   Future<SafDocumentFile?> child(String uri, List<String> names) {
     return SafUtilPlatform.instance.child(uri, names);
   }

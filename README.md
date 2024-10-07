@@ -9,7 +9,14 @@ Util functions for SAF (Storage Access Framework). Note that this package doesn'
 ```dart
 class SafUtil {
   /// Shows a folder picker dialog and returns the selected folder URI.
-  Future<String?> openDirectory({String? initialUri, bool? writePermission, bool? persistablePermission});
+  ///
+  /// [initialUri] is the initial URI to show in the dialog.
+  /// [writePermission] is true if the folder should have write permission.
+  /// [persistablePermission] is true if the permission should be persistable.
+  Future<String?> openDirectory(
+      {String? initialUri,
+      bool? writePermission,
+      bool? persistablePermission});
 
   /// Lists the contents of the specified directory URI.
   ///
@@ -37,14 +44,14 @@ class SafUtil {
   /// Creates a directory and all its parent directories.
   ///
   /// [uri] is the URI of the directory to create.
-  /// [path] is the list of parent directory names.
+  /// [names] is a list of directory names to create.
   Future<SafDocumentFile> mkdirp(String uri, List<String> names);
 
   /// Gets the child file or directory with the specified name.
   ///
   /// [uri] is the URI of the parent directory.
-  /// [name] is the name of the child file or directory.
-  Future<SafDocumentFile?>child(String uri, List<String> names);
+  /// [names] is a list of directory names to traverse.
+  Future<SafDocumentFile?> child(String uri, List<String> names);
 
   /// Renames the specified file or directory.
   ///
@@ -58,7 +65,8 @@ class SafUtil {
   /// [uri] is the URI of the file or directory.
   /// [parentUri] is the URI of the current parent directory.
   /// [newParentUri] is the URI of the new parent directory.
-  Future<SafDocumentFile> moveTo(String uri, String parentUri, String newParentUri);
+  Future<SafDocumentFile> moveTo(
+      String uri, bool isDir, String parentUri, String newParentUri);
 
   /// Copies the specified file or directory to a new parent directory.
   ///
