@@ -187,11 +187,11 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         CoroutineScope(Dispatchers.IO).launch {
           try {
             val uri = call.argument<String?>("uri") as String
-            val path =
-              call.argument<ArrayList<String>>("path") as ArrayList<String>
+            val names =
+              call.argument<ArrayList<String>>("names") as ArrayList<String>
 
             var curDocument = documentFileFromUri(uri, true)
-            for (curName in path) {
+            for (curName in names) {
               val findRes = findDFChild(curDocument.uri, curName)
               val childDocument: DocumentFile? = if (findRes == null) {
                 curDocument.createDirectory(curName)

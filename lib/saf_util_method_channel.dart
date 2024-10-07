@@ -59,10 +59,10 @@ class MethodChannelSafUtil extends SafUtilPlatform {
   }
 
   @override
-  Future<SafUriInfo> mkdirp(String uri, List<String> path) async {
+  Future<SafUriInfo> mkdirp(String uri, List<String> names) async {
     final map = await methodChannel.invokeMapMethod<String, dynamic>(
       'mkdirp',
-      {'uri': uri, 'path': path},
+      {'uri': uri, 'names': names},
     );
     if (map == null) {
       throw Exception('Failed to create directory: $uri');

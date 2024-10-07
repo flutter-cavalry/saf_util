@@ -99,7 +99,7 @@ abstract class SafUtilPlatform extends PlatformInterface {
     throw UnimplementedError('delete() has not been implemented.');
   }
 
-  Future<SafUriInfo> mkdirp(String uri, List<String> path) {
+  Future<SafUriInfo> mkdirp(String uri, List<String> names) {
     throw UnimplementedError('mkdirp() has not been implemented.');
   }
 

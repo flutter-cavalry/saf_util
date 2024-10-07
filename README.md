@@ -38,7 +38,7 @@ class SafUtil {
   ///
   /// [uri] is the URI of the directory to create.
   /// [path] is the list of parent directory names.
-  Future<SafUriInfo> mkdirp(String uri, List<String> path);
+  Future<SafUriInfo> mkdirp(String uri, List<String> names);
 
   /// Gets the child file or directory with the specified name.
   ///
