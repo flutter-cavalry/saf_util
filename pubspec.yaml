@@ -1,11 +1,11 @@
 name: saf_util
-description: "A new Flutter plugin project."
+description: "Util functions for SAF (Storage Access Framework)."
 version: 0.0.1
-homepage:
+homepage: https://github.com/flutter-cavalry/saf_util
 
 environment:
   sdk: ^3.5.3
-  flutter: '>=3.3.0'
+  flutter: ">=3.3.0"
 
 dependencies:
   flutter:
