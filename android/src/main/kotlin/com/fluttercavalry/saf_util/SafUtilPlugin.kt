@@ -34,7 +34,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   private var activity: Activity? = null
 
   private var pendingResult: Result? = null
-  private val REQUEST_CODE_OPEN_DOCUMENT_TREE = 1001
+  private val requestCodeOpenDocumentTree = 1001
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "saf_util")
@@ -361,6 +361,8 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
       "openDirectory" -> {
         try {
+          val initialUri = call.argument<String>("initialUri")
+
           if (activity == null) {
             result.error("NO_ACTIVITY", "Activity is null", null)
             return
@@ -373,8 +375,13 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
           // Store the result to return the URI later
           pendingResult = result
           val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
-          intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-          activity?.startActivityForResult(intent, REQUEST_CODE_OPEN_DOCUMENT_TREE)
+          if (initialUri != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+              intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(initialUri))
+            }
+          }
+
+          activity?.startActivityForResult(intent, requestCodeOpenDocumentTree)
         } catch (err: Exception) {
             result.error("PluginError", err.message, null)
         }
@@ -386,7 +393,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
   // Handle the result of the folder picker
   private fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-    if (requestCode == REQUEST_CODE_OPEN_DOCUMENT_TREE) {
+    if (requestCode == requestCodeOpenDocumentTree) {
       if (resultCode == Activity.RESULT_OK && data != null) {
         val uri: Uri? = data.data
         pendingResult?.success(uri.toString())  // Return the URI to Flutter

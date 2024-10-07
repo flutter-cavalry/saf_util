@@ -10,8 +10,10 @@ class MethodChannelSafUtil extends SafUtilPlatform {
   final methodChannel = const MethodChannel('saf_util');
 
   @override
-  Future<String?> openDirectory() async {
-    return methodChannel.invokeMethod<String>('openDirectory');
+  Future<String?> openDirectory({String? initialUri}) async {
+    return methodChannel.invokeMethod<String>('openDirectory', {
+      'initialUri': initialUri,
+    });
   }
 
   @override
