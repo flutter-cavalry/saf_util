@@ -166,7 +166,8 @@ class _FolderRouteState extends State<FolderRoute> {
               'Last modified: ${DateTime.fromMillisecondsSinceEpoch(df.lastModified)}'),
         ],
         const SizedBox(height: 10),
-        Row(
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             OutlinedButton(
                 onPressed: () async {
@@ -210,7 +211,40 @@ class _FolderRouteState extends State<FolderRoute> {
                         title: 'Error', error: err, okText: 'OK');
                   }
                 },
-                child: const Text('documentFileFromUri'))
+                child: const Text('documentFileFromUri')),
+            const SizedBox(width: 10),
+            OutlinedButton(
+                onPressed: () async {
+                  try {
+                    final newName = await FcQuickDialog.textInput(context,
+                        title: 'Enter a new name',
+                        okText: 'OK',
+                        cancelText: 'Cancel');
+                    if (newName == null) {
+                      return;
+                    }
+                    if (!mounted) {
+                      return;
+                    }
+                    final res =
+                        await _safUtilPlugin.rename(df.uri, df.isDir, newName);
+                    if (!mounted) {
+                      return;
+                    }
+                    await FcQuickDialog.info(context,
+                        title: 'Renamed',
+                        content: res.toString(),
+                        okText: 'OK');
+                    await _reload();
+                  } catch (err) {
+                    if (!mounted) {
+                      return;
+                    }
+                    await FcQuickDialog.error(context,
+                        title: 'Error', error: err, okText: 'OK');
+                  }
+                },
+                child: const Text('Rename'))
           ],
         )
       ],

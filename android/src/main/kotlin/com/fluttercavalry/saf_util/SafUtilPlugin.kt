@@ -204,7 +204,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
             var curDocument = documentFileFromUri(uri, true) ?: throw Exception("Failed to get DocumentFile from $uri")
             for (curName in names) {
-              val findRes = findDFChild(curDocument.uri, curName)
+              val findRes = findDirectChild(curDocument.uri, curName)
               val childDocument: DocumentFile? = if (findRes == null) {
                 curDocument.createDirectory(curName)
               } else {
@@ -238,7 +238,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
             var curDocument = documentFileFromUri(uri, true) ?: throw Exception("Failed to get DocumentFile from $uri")
             for (curName in names) {
-              val findRes = findDFChild(curDocument.uri, curName)
+              val findRes = findDirectChild(curDocument.uri, curName)
               if (findRes == null) {
                 launch(Dispatchers.Main) {
                   result.success(null)
@@ -271,10 +271,8 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             if (!success) {
               throw Exception("Failed to rename to $newName")
             }
-            val newDocumentUriInfo = findDFChild(df.uri, newName)
-              ?: throw Exception("Failed to find renamed document")
             launch(Dispatchers.Main) {
-              result.success(newDocumentUriInfo.toMap())
+              result.success(fileObjMapFromDocumentFile(df))
             }
           } catch (err: Exception) {
             launch(Dispatchers.Main) {
@@ -415,7 +413,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     return res
   }
 
-  private fun findDFChild(parentUri: Uri, name: String): UriInfo? {
+  private fun findDirectChild(parentUri: Uri, name: String): UriInfo? {
     var cursor: Cursor? = null
     try {
       val resolver = context.contentResolver
@@ -443,7 +441,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
         if (fileName == name) {
           val documentUri = DocumentsContract.buildDocumentUriUsingTree(parentUri, documentId)
-          return UriInfo(documentUri, name, isDirectory)
+          return UriInfo(documentUri, fileName, isDirectory)
         }
       }
       return null
@@ -482,18 +480,12 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 }
 
-class UriInfo(val uri: Uri, val name: String, val isDir: Boolean) {
+internal data class UriInfo(val uri: Uri, val name: String, val isDir: Boolean) {
   fun toMap(): Map<String, Any> {
     return mapOf(
       "uri" to uri.toString(),
       "name" to name,
       "isDir" to isDir
     )
-  }
-}
-
-internal class OnResultListener(private val onResult: (resultCode: Int, data: Intent?) -> Unit) {
-  fun handleResult(resultCode: Int, data: Intent?) {
-    onResult(resultCode, data)
   }
 }

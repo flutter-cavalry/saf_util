@@ -33,31 +33,6 @@ class SafDocumentFile {
   }
 }
 
-class SafUriInfo {
-  final String uri;
-  final String name;
-  final bool isDir;
-
-  SafUriInfo({
-    required this.uri,
-    required this.name,
-    required this.isDir,
-  });
-
-  static SafUriInfo fromMap(Map<String, dynamic> map) {
-    return SafUriInfo(
-      uri: map['uri'],
-      name: map['name'],
-      isDir: map['isDir'],
-    );
-  }
-
-  @override
-  String toString() {
-    return 'SafUriInfo{uri: $uri, name: $name, isDir: $isDir}';
-  }
-}
-
 abstract class SafUtilPlatform extends PlatformInterface {
   /// Constructs a SafUtilPlatform.
   SafUtilPlatform() : super(token: _token);
@@ -99,7 +74,7 @@ abstract class SafUtilPlatform extends PlatformInterface {
     throw UnimplementedError('delete() has not been implemented.');
   }
 
-  Future<SafUriInfo> mkdirp(String uri, List<String> names) {
+  Future<SafDocumentFile> mkdirp(String uri, List<String> names) {
     throw UnimplementedError('mkdirp() has not been implemented.');
   }
 
@@ -107,7 +82,7 @@ abstract class SafUtilPlatform extends PlatformInterface {
     throw UnimplementedError('child() has not been implemented.');
   }
 
-  Future<SafUriInfo> rename(String uri, bool isDir, String newName) {
+  Future<SafDocumentFile> rename(String uri, bool isDir, String newName) {
     throw UnimplementedError('rename() has not been implemented.');
   }
 

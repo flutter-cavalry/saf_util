@@ -38,7 +38,7 @@ class SafUtil {
   ///
   /// [uri] is the URI of the directory to create.
   /// [path] is the list of parent directory names.
-  Future<SafUriInfo> mkdirp(String uri, List<String> names);
+  Future<SafDocumentFile> mkdirp(String uri, List<String> names);
 
   /// Gets the child file or directory with the specified name.
   ///
@@ -51,7 +51,7 @@ class SafUtil {
   /// [uri] is the URI of the file or directory.
   /// [isDir] is true if the URI is a directory.
   /// [newName] is the new name of the file or directory.
-  Future<SafUriInfo> rename(String uri, bool isDir, String newName);
+  Future<SafDocumentFile> rename(String uri, bool isDir, String newName);
 
   /// Moves the specified file or directory to a new parent directory.
   ///

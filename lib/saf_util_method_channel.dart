@@ -59,7 +59,7 @@ class MethodChannelSafUtil extends SafUtilPlatform {
   }
 
   @override
-  Future<SafUriInfo> mkdirp(String uri, List<String> names) async {
+  Future<SafDocumentFile> mkdirp(String uri, List<String> names) async {
     final map = await methodChannel.invokeMapMethod<String, dynamic>(
       'mkdirp',
       {'uri': uri, 'names': names},
@@ -67,7 +67,7 @@ class MethodChannelSafUtil extends SafUtilPlatform {
     if (map == null) {
       throw Exception('Failed to create directory: $uri');
     }
-    return SafUriInfo.fromMap(map);
+    return SafDocumentFile.fromMap(map);
   }
 
   @override
@@ -86,7 +86,7 @@ class MethodChannelSafUtil extends SafUtilPlatform {
   }
 
   @override
-  Future<SafUriInfo> rename(String uri, bool isDir, String newName) async {
+  Future<SafDocumentFile> rename(String uri, bool isDir, String newName) async {
     final map = await methodChannel.invokeMapMethod<String, dynamic>(
       'rename',
       {'uri': uri, 'isDir': isDir, 'newName': newName},
@@ -94,7 +94,7 @@ class MethodChannelSafUtil extends SafUtilPlatform {
     if (map == null) {
       throw Exception('Failed to rename: $uri');
     }
-    return SafUriInfo.fromMap(map);
+    return SafDocumentFile.fromMap(map);
   }
 
   @override
