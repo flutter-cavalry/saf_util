@@ -17,7 +17,7 @@ class SafUtil {
   ///
   /// [uri] is the URI of the file or directory.
   /// [isDir] is true if the URI is a directory.
-  Future<SafDocumentFile> documentFileFromUri(String uri, bool isDir) {
+  Future<SafDocumentFile?> documentFileFromUri(String uri, bool isDir) {
     return SafUtilPlatform.instance.documentFileFromUri(uri, isDir);
   }
 

@@ -24,13 +24,13 @@ class MethodChannelSafUtil extends SafUtilPlatform {
   }
 
   @override
-  Future<SafDocumentFile> documentFileFromUri(String uri, bool isDir) async {
+  Future<SafDocumentFile?> documentFileFromUri(String uri, bool isDir) async {
     final map = await methodChannel.invokeMapMethod<String, dynamic>(
       'documentFileFromUri',
       {'uri': uri, 'isDir': isDir},
     );
     if (map == null) {
-      throw Exception('Failed to get document file from uri: $uri');
+      return null;
     }
     return SafDocumentFile.fromMap(map);
   }
