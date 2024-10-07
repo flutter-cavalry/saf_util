@@ -72,6 +72,9 @@ class MethodChannelSafUtil extends SafUtilPlatform {
 
   @override
   Future<SafDocumentFile?> child(String uri, List<String> names) async {
+    if (names.isEmpty) {
+      throw ArgumentError('names must not be empty');
+    }
     final map = await methodChannel.invokeMapMethod<String, dynamic>(
       'child',
       {'uri': uri, 'names': names},
