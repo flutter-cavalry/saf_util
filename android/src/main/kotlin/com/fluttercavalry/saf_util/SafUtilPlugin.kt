@@ -50,7 +50,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   override fun onAttachedToActivity(binding: ActivityPluginBinding) {
-    activity = binding.activity;
+    activity = binding.activity
     binding.addActivityResultListener { requestCode, resultCode, data ->
       onActivityResult(requestCode, resultCode, data)
       true
@@ -204,18 +204,32 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             var curDocument = documentFileFromUri(uri, true) ?: throw Exception("Failed to get DocumentFile from $uri")
             for (curName in names) {
               val findRes = findDirectChild(curDocument.uri, curName)
-              val childDocument: DocumentFile? = if (findRes == null) {
-                curDocument.createDirectory(curName)
+              val nextDocument: DocumentFile?
+              if (findRes == null) {
+                val createRes = curDocument.createDirectory(curName)
+                if (createRes != null && createRes.name != curName) {
+                  // There are cases where the created directory has a different name due to concurrent operations.
+                  // In this case, we need to find the directory with the correct name again.
+                  val findRes2 = findDirectChild(curDocument.uri, curName)
+                  nextDocument = if (findRes2 != null) {
+                    documentFileFromUriObj(findRes2.uri, findRes2.isDir)
+                  } else {
+                    null
+                  }
+                } else {
+                  nextDocument = createRes
+                }
               } else {
-                documentFileFromUriObj(findRes.uri, findRes.isDir)
+                nextDocument = documentFileFromUriObj(findRes.uri, findRes.isDir)
               }
-              if (childDocument == null) {
+
+              if (nextDocument == null) {
                 throw Exception("Failed to create directory at $curName")
               }
-              if (childDocument.isFile) {
+              if (nextDocument.isFile) {
                 throw Exception("File found at $curName while creating directory")
               }
-              curDocument = childDocument
+              curDocument = nextDocument
             }
 
             launch(Dispatchers.Main) {
@@ -525,15 +539,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 }
 
-internal data class UriInfo(val uri: Uri, val name: String, val isDir: Boolean) {
-  fun toMap(): Map<String, Any> {
-    return mapOf(
-      "uri" to uri.toString(),
-      "name" to name,
-      "isDir" to isDir
-    )
-  }
-}
+internal data class UriInfo(val uri: Uri, val name: String, val isDir: Boolean)
 
 internal data class PendingArguments(
   val writePermission: Boolean,
