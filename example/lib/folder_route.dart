@@ -91,6 +91,37 @@ class _FolderRouteState extends State<FolderRoute> {
               },
               child: const Text('Find child'),
             ),
+            const SizedBox(width: 20),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  final path = await FcQuickDialog.textInput(context,
+                      title: 'Enter a path (e.g. a/b/c)',
+                      okText: 'OK',
+                      cancelText: 'Cancel');
+                  if (path == null) {
+                    return;
+                  }
+                  final components = path.split('/');
+                  final uriInfo =
+                      await _safUtilPlugin.mkdirp(widget.folder, components);
+                  if (!mounted) {
+                    return;
+                  }
+                  await FcQuickDialog.info(context,
+                      title: 'Directories created',
+                      content: uriInfo.toString(),
+                      okText: 'OK');
+                } catch (err) {
+                  if (!mounted) {
+                    return;
+                  }
+                  await FcQuickDialog.error(context,
+                      title: 'Error', error: err, okText: 'OK');
+                }
+              },
+              child: const Text('mkdir -p'),
+            ),
           ],
         ),
         const SizedBox(height: 20),
