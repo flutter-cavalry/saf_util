@@ -6,9 +6,7 @@ import android.content.Intent
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
-import android.os.FileUtils
 import android.provider.DocumentsContract
-import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.documentfile.provider.DocumentFile
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
@@ -268,12 +266,22 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             val newName = call.argument<String>("newName") as String
 
             val df = documentFileFromUri(uri, isDir) ?: throw Exception("Failed to get DocumentFile from $uri")
-            val success = df.renameTo(newName)
-            if (!success) {
-              throw Exception("Failed to rename to $newName")
-            }
-            launch(Dispatchers.Main) {
-              result.success(fileObjMapFromDocumentFile(df))
+            if (isDir) {
+              val success = df.renameTo(newName)
+              if (!success) {
+                throw Exception("Failed to rename to $newName")
+              }
+              launch(Dispatchers.Main) {
+                result.success(fileObjMapFromDocumentFile(df))
+              }
+            } else {
+              val newUri = renameFileDocumentFile(df, newName)
+                ?: throw Exception("Failed to rename to $newName")
+              val newDF = documentFileFromUriObj(newUri, false)
+                ?: throw Exception("Failed to get DocumentFile from $newUri")
+              launch(Dispatchers.Main) {
+                result.success(fileObjMapFromDocumentFile(newDF))
+              }
             }
           } catch (err: Exception) {
             launch(Dispatchers.Main) {
@@ -475,6 +483,18 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         cursor?.close()
       } catch (_: Exception) {
       }
+    }
+  }
+
+  private fun renameFileDocumentFile(df: DocumentFile, newName: String): Uri? {
+    // https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:documentfile/documentfile/src/main/java/androidx/documentfile/provider/TreeDocumentFile.java
+    try {
+      val result = DocumentsContract.renameDocument(
+        context.contentResolver, df.uri, newName
+      )
+      return result
+    } catch (err: Exception) {
+      return null
     }
   }
 
