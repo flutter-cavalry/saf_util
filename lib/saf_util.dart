@@ -75,15 +75,16 @@ class SafUtil {
   /// [uri] is the URI of the file or directory.
   /// [parentUri] is the URI of the current parent directory.
   /// [newParentUri] is the URI of the new parent directory.
-  Future<String> moveTo(String uri, String parentUri, String newParentUri) {
-    return SafUtilPlatform.instance.moveTo(uri, parentUri, newParentUri);
+  Future<SafDocumentFile> moveTo(
+      String uri, bool isDir, String parentUri, String newParentUri) {
+    return SafUtilPlatform.instance.moveTo(uri, isDir, parentUri, newParentUri);
   }
 
   /// Copies the specified file or directory to a new parent directory.
   ///
   /// [uri] is the URI of the file or directory.
   /// [newParentUri] is the URI of the new parent directory.
-  Future<String> copyTo(String uri, String newParentUri) {
-    return SafUtilPlatform.instance.copyTo(uri, newParentUri);
+  Future<SafDocumentFile> copyTo(String uri, bool isDir, String newParentUri) {
+    return SafUtilPlatform.instance.copyTo(uri, isDir, newParentUri);
   }
 }

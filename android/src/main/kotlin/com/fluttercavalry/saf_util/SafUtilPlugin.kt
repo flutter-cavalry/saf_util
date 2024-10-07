@@ -137,7 +137,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
             val df = documentFileFromUri(uri, isDir)
             launch(Dispatchers.Main) {
-              result.success(fileObjMapFromDocumentFile(df, isDir ?: false))
+              result.success(fileObjMapFromDocumentFile(df))
             }
           } catch (err: Exception) {
             launch(Dispatchers.Main) {
@@ -208,7 +208,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             }
 
             launch(Dispatchers.Main) {
-              result.success(fileObjMapFromDocumentFile(curDocument, true))
+              result.success(fileObjMapFromDocumentFile(curDocument))
             }
           } catch (err: Exception) {
             launch(Dispatchers.Main) {
@@ -234,7 +234,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             }
             val childDocument = documentFileFromUriObj(findRes.uri, findRes.isDir)
             launch(Dispatchers.Main) {
-              result.success(fileObjMapFromDocumentFile(childDocument, findRes.isDir))
+              result.success(fileObjMapFromDocumentFile(childDocument))
             }
           } catch (err: Exception) {
             launch(Dispatchers.Main) {
@@ -302,6 +302,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         CoroutineScope(Dispatchers.IO).launch {
           try {
             val uri = call.argument<String>("uri") as String
+            val isDir = call.argument<Boolean>("isDir") as Boolean
             val parentUri = call.argument<String>("parentUri") as String
             val newParentUri = call.argument<String>("newParentUri") as String
 
@@ -314,10 +315,10 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
               uriObj,
               parentUriObj,
               newParentUriObj
-            )
+            ) ?: throw Exception("Failed to move document")
 
             launch(Dispatchers.Main) {
-              result.success(resUri)
+              result.success(fileObjMapFromDocumentFile(documentFileFromUriObj(resUri, isDir)))
             }
           } catch (err: Exception) {
             launch(Dispatchers.Main) {
@@ -335,6 +336,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         CoroutineScope(Dispatchers.IO).launch {
           try {
             val uri = call.argument<String>("uri") as String
+            val isDir = call.argument<Boolean>("isDir") as Boolean
             val newParentUri = call.argument<String>("newParentUri") as String
 
             val uriObj = Uri.parse(uri)
@@ -344,10 +346,10 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
               context.contentResolver,
               uriObj,
               newParentUriObj
-            )
+            ) ?: throw Exception("Failed to move document")
 
             launch(Dispatchers.Main) {
-              result.success(resUri)
+              result.success(fileObjMapFromDocumentFile(documentFileFromUriObj(resUri, isDir)))
             }
           } catch (err: Exception) {
             launch(Dispatchers.Main) {
@@ -456,10 +458,10 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     }
   }
 
-  private fun fileObjMapFromDocumentFile(file: DocumentFile, isDir: Boolean): Map<String, Any> {
+  private fun fileObjMapFromDocumentFile(file: DocumentFile): Map<String, Any> {
     return fileObjMap(
       file.uri,
-      isDir,
+      file.isDirectory,
       file.name ?: "",
       file.length().toInt(),
       file.lastModified()

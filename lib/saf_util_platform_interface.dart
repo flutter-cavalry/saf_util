@@ -115,11 +115,12 @@ abstract class SafUtilPlatform extends PlatformInterface {
     throw UnimplementedError('rename() has not been implemented.');
   }
 
-  Future<String> moveTo(String uri, String parentUri, String newParentUri) {
+  Future<SafDocumentFile> moveTo(
+      String uri, bool isDir, String parentUri, String newParentUri) {
     throw UnimplementedError('moveTo() has not been implemented.');
   }
 
-  Future<String> copyTo(String uri, String newParentUri) {
+  Future<SafDocumentFile> copyTo(String uri, bool isDir, String newParentUri) {
     throw UnimplementedError('copyTo() has not been implemented.');
   }
 }

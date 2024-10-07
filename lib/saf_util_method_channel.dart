@@ -105,27 +105,33 @@ class MethodChannelSafUtil extends SafUtilPlatform {
   }
 
   @override
-  Future<String> moveTo(
-      String uri, String parentUri, String newParentUri) async {
-    final res = await methodChannel.invokeMethod<String>(
+  Future<SafDocumentFile> moveTo(
+      String uri, bool isDir, String parentUri, String newParentUri) async {
+    final map = await methodChannel.invokeMapMethod<String, dynamic>(
       'moveTo',
-      {'uri': uri, 'parentUri': parentUri, 'newParentUri': newParentUri},
+      {
+        'uri': uri,
+        'isDir': isDir,
+        'parentUri': parentUri,
+        'newParentUri': newParentUri
+      },
     );
-    if (res == null) {
+    if (map == null) {
       throw Exception('Failed to move: $uri');
     }
-    return res;
+    return SafDocumentFile.fromMap(map);
   }
 
   @override
-  Future<String> copyTo(String uri, String newParentUri) async {
-    final res = await methodChannel.invokeMethod<String>(
+  Future<SafDocumentFile> copyTo(
+      String uri, bool isDir, String newParentUri) async {
+    final map = await methodChannel.invokeMapMethod<String, dynamic>(
       'copyTo',
-      {'uri': uri, 'newParentUri': newParentUri},
+      {'uri': uri, 'isDir': isDir, 'newParentUri': newParentUri},
     );
-    if (res == null) {
+    if (map == null) {
       throw Exception('Failed to copy: $uri');
     }
-    return res;
+    return SafDocumentFile.fromMap(map);
   }
 }
