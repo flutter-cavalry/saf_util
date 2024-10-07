@@ -63,12 +63,15 @@ class _FolderRouteState extends State<FolderRoute> {
             ElevatedButton(
               onPressed: () async {
                 try {
-                  final name = await FcQuickDialog.textInput(context,
-                      title: 'Enter name', okText: 'OK', cancelText: 'Cancel');
-                  if (name == null) {
+                  final names = await FcQuickDialog.textInput(context,
+                      title: 'Enter names, e.g. a/b/c',
+                      okText: 'OK',
+                      cancelText: 'Cancel');
+                  if (names == null) {
                     return;
                   }
-                  final child = await _safUtilPlugin.child(widget.folder, name);
+                  final child = await _safUtilPlugin.child(
+                      widget.folder, names.split('/'));
                   if (!mounted) {
                     return;
                   }

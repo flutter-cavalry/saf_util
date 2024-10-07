@@ -49,8 +49,8 @@ class SafUtil {
   ///
   /// [uri] is the URI of the parent directory.
   /// [name] is the name of the child file or directory.
-  Future<SafDocumentFile?> child(String uri, String name) {
-    return SafUtilPlatform.instance.child(uri, name);
+  Future<SafDocumentFile?> child(String uri, List<String> names) {
+    return SafUtilPlatform.instance.child(uri, names);
   }
 
   /// Gets the child file or directory URI with the specified name.

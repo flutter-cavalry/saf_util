@@ -103,7 +103,7 @@ abstract class SafUtilPlatform extends PlatformInterface {
     throw UnimplementedError('mkdirp() has not been implemented.');
   }
 
-  Future<SafDocumentFile?> child(String uri, String name) {
+  Future<SafDocumentFile?> child(String uri, List<String> names) {
     throw UnimplementedError('child() has not been implemented.');
   }
 

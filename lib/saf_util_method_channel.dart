@@ -71,10 +71,10 @@ class MethodChannelSafUtil extends SafUtilPlatform {
   }
 
   @override
-  Future<SafDocumentFile?> child(String uri, String name) async {
+  Future<SafDocumentFile?> child(String uri, List<String> names) async {
     final map = await methodChannel.invokeMapMethod<String, dynamic>(
       'child',
-      {'uri': uri, 'name': name},
+      {'uri': uri, 'names': names},
     );
     if (map == null) {
       return null;

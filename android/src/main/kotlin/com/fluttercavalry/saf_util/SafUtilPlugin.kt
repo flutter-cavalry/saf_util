@@ -222,19 +222,22 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         CoroutineScope(Dispatchers.IO).launch {
           try {
             val uri = call.argument<String>("uri") as String
-            val name = call.argument<String>("name") as String
+            val names = call.argument<ArrayList<String>>("names") as ArrayList<String>
 
-            val parentDocument = documentFileFromUri(uri, true)
-            val findRes = findDFChild(parentDocument.uri, name)
-            if (findRes == null) {
-              launch(Dispatchers.Main) {
-                result.success(null)
+            var curDocument = documentFileFromUri(uri, true)
+            for (curName in names) {
+              val findRes = findDFChild(curDocument.uri, curName)
+              if (findRes == null) {
+                launch(Dispatchers.Main) {
+                  result.success(null)
+                }
+                return@launch
               }
-              return@launch
+              curDocument = documentFileFromUriObj(findRes.uri, findRes.isDir)
             }
-            val childDocument = documentFileFromUriObj(findRes.uri, findRes.isDir)
+
             launch(Dispatchers.Main) {
-              result.success(fileObjMapFromDocumentFile(childDocument))
+              result.success(fileObjMapFromDocumentFile(curDocument))
             }
           } catch (err: Exception) {
             launch(Dispatchers.Main) {
