@@ -117,6 +117,7 @@ class _FolderRouteState extends State<FolderRoute> {
                       title: 'Directories created',
                       content: uriInfo.toString(),
                       okText: 'OK');
+                  await _reload();
                 } catch (err) {
                   if (!mounted) {
                     return;
