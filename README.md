@@ -19,6 +19,7 @@ class SafUtil {
       bool? persistablePermission});
 
   /// Lists the contents of the specified directory URI.
+  /// Returns a list of [SafDocumentFile] objects.
   ///
   /// [uri] is the URI of the directory.
   Future<List<SafDocumentFile>> list(String uri);
@@ -42,6 +43,7 @@ class SafUtil {
   Future<void> delete(String uri, bool isDir);
 
   /// Creates a directory and all its parent directories.
+  /// Returns the created directory as a [SafDocumentFile] object.
   ///
   /// [uri] is the URI of the directory to create.
   /// [names] is a list of directory names to create.
@@ -54,6 +56,7 @@ class SafUtil {
   Future<SafDocumentFile?> child(String uri, List<String> names);
 
   /// Renames the specified file or directory.
+  /// Returns the renamed file or directory as a [SafDocumentFile] object.
   ///
   /// [uri] is the URI of the file or directory.
   /// [isDir] is true if the URI is a directory.
@@ -61,6 +64,7 @@ class SafUtil {
   Future<SafDocumentFile> rename(String uri, bool isDir, String newName);
 
   /// Moves the specified file or directory to a new parent directory.
+  /// Returns the moved file or directory as a [SafDocumentFile] object.
   ///
   /// [uri] is the URI of the file or directory.
   /// [parentUri] is the URI of the current parent directory.
@@ -69,6 +73,7 @@ class SafUtil {
       String uri, bool isDir, String parentUri, String newParentUri);
 
   /// Copies the specified file or directory to a new parent directory.
+  /// Returns the copied file or directory as a [SafDocumentFile] object.
   ///
   /// [uri] is the URI of the file or directory.
   /// [newParentUri] is the URI of the new parent directory.
