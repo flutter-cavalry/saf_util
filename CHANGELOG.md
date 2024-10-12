@@ -1,3 +1,7 @@
+## 0.3.0
+
+- `saveThumbnailToFile` width and height params should be int.
+
 ## 0.2.0
 
 - Add `saveThumbnailToFile`, which supports extracting image and video thumbnails from an SAF [DocumentFile].
