@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:fc_quick_dialog/fc_quick_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:saf_util/saf_util.dart';
 import 'package:saf_util/saf_util_platform_interface.dart';
+import 'package:tmp_path/tmp_path.dart';
 
 class FolderRoute extends StatefulWidget {
   final String folder;
@@ -245,7 +248,37 @@ class _FolderRouteState extends State<FolderRoute> {
                         title: 'Error', error: err, okText: 'OK');
                   }
                 },
-                child: const Text('Rename'))
+                child: const Text('Rename')),
+            const SizedBox(width: 10),
+            OutlinedButton(
+                onPressed: () async {
+                  try {
+                    final thumbnailPath = tmpPath();
+                    final saved = await _safUtilPlugin.saveThumbnailToFile(
+                        uri: df.uri,
+                        width: 256,
+                        height: 256,
+                        destPath: thumbnailPath);
+                    final contentWidget = saved
+                        ? Image.file(File(thumbnailPath))
+                        : const Text('No thumbnail available for this file');
+                    if (!mounted) {
+                      return;
+                    }
+                    await FcQuickDialog.info(context,
+                        title: 'Result',
+                        contentWidget: contentWidget,
+                        okText: 'OK');
+                    await _reload();
+                  } catch (err) {
+                    if (!mounted) {
+                      return;
+                    }
+                    await FcQuickDialog.error(context,
+                        title: 'Error', error: err, okText: 'OK');
+                  }
+                },
+                child: const Text('Get thumbnail'))
           ],
         )
       ],

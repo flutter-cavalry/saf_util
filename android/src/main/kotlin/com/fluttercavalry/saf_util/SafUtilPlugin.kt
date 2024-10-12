@@ -4,6 +4,10 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
+import android.graphics.Bitmap
+import android.graphics.Point
+import android.media.MediaMetadataRetriever
+import android.media.MediaMetadataRetriever.OPTION_CLOSEST_SYNC
 import android.net.Uri
 import android.os.Build
 import android.provider.DocumentsContract
@@ -18,6 +22,7 @@ import io.flutter.plugin.common.MethodChannel.Result
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.io.File
 
 
 /** SafUtilPlugin */
@@ -109,7 +114,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                 isDirectory,
                 fileName,
                 fileSize.toInt(),
-                lastModified
+                lastModified,
               )
               results.add(fileInfo)
             }
@@ -413,6 +418,69 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         }
       }
 
+      "saveThumbnailToFile" -> {
+        CoroutineScope(Dispatchers.Default).launch {
+          try {
+            val uri = Uri.parse(call.argument("uri"))
+            val dest = call.argument<String>("destPath")!!
+            val format = call.argument<String>("format") ?: "jpeg"
+            val isPng = format == "png"
+            val quality = call.argument("quality") ?: if (isPng) 100 else 80
+
+            val width = call.argument<Int>("width")!!
+            val height = call.argument<Int>("height")!!
+
+            val df = DocumentFile.fromSingleUri(context, uri)
+            val mime = df?.type
+            if (mime == null) {
+              launch(Dispatchers.Main) {
+                result.success(false)
+              }
+              return@launch
+            }
+
+            var bitmap: Bitmap? = null
+            // Use MediaMetadataRetriever for video files.
+            if (mime.startsWith("video/")) {
+              val mmr = MediaMetadataRetriever()
+              mmr.setDataSource(context, uri)
+              bitmap = if (Build.VERSION.SDK_INT >= 27) {
+                mmr.getScaledFrameAtTime(-1, OPTION_CLOSEST_SYNC, width, height)
+              } else {
+                mmr.frameAtTime
+              }
+            } else {
+              // Use DocumentsContract for other files.
+              bitmap = DocumentsContract.getDocumentThumbnail(
+                context.contentResolver,
+                uri,
+                Point(width, height),
+                null
+              )
+            }
+
+            if (bitmap != null) {
+              File(dest).writeBitmap(
+                bitmap,
+                if (isPng) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG,
+                quality,
+              )
+              launch(Dispatchers.Main) {
+                result.success(true)
+              }
+            } else {
+              launch(Dispatchers.Main) {
+                result.success(false)
+              }
+            }
+          } catch (err: Exception) {
+            launch(Dispatchers.Main) {
+              result.error("PluginError", err.message, null)
+            }
+          }
+        }
+      }
+
       else -> result.notImplemented()
     }
   }
@@ -512,13 +580,13 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     }
   }
 
-  private fun fileObjMapFromDocumentFile(file: DocumentFile): Map<String, Any> {
+  private fun fileObjMapFromDocumentFile(file: DocumentFile): Map<String, Any?> {
     return fileObjMap(
       file.uri,
       file.isDirectory,
       file.name ?: "",
       file.length().toInt(),
-      file.lastModified()
+      file.lastModified(),
     )
   }
 
@@ -528,7 +596,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     name: String,
     length: Int,
     lastMod: Long,
-  ): Map<String, Any> {
+  ): Map<String, Any?> {
     return mapOf(
       "uri" to uri.toString(),
       "isDir" to isDir,
@@ -536,6 +604,13 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       "length" to length,
       "lastModified" to lastMod,
     )
+  }
+
+  private fun File.writeBitmap(bitmap: Bitmap, format: Bitmap.CompressFormat, quality: Int) {
+    outputStream().use { out ->
+      bitmap.compress(format, quality, out)
+      out.flush()
+    }
   }
 }
 

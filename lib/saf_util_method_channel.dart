@@ -132,4 +132,27 @@ class MethodChannelSafUtil extends SafUtilPlatform {
     }
     return SafDocumentFile.fromMap(map);
   }
+
+  @override
+  Future<bool> saveThumbnailToFile({
+    required String uri,
+    required double width,
+    required double height,
+    required String destPath,
+    String? format,
+    int? quality,
+  }) async {
+    final res = await methodChannel.invokeMethod<bool>(
+      'saveThumbnailToFile',
+      {
+        'uri': uri.toString(),
+        'width': width,
+        'height': height,
+        'destPath': destPath,
+        'format': format,
+        'quality': quality,
+      },
+    );
+    return res ?? false;
+  }
 }

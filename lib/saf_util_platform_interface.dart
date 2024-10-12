@@ -97,4 +97,15 @@ abstract class SafUtilPlatform extends PlatformInterface {
   Future<SafDocumentFile> copyTo(String uri, bool isDir, String newParentUri) {
     throw UnimplementedError('copyTo() has not been implemented.');
   }
+
+  Future<bool> saveThumbnailToFile({
+    required String uri,
+    required double width,
+    required double height,
+    required String destPath,
+    String? format,
+    int? quality,
+  }) {
+    throw UnimplementedError('saveThumbnailToFile() has not been implemented.');
+  }
 }

@@ -94,4 +94,32 @@ class SafUtil {
   Future<SafDocumentFile> copyTo(String uri, bool isDir, String newParentUri) {
     return SafUtilPlatform.instance.copyTo(uri, isDir, newParentUri);
   }
+
+  /// Saves document thumbnail to a local file from the specified URI.
+  ///
+  /// [uri] is the URI of the file.
+  /// [width] is the width of the thumbnail.
+  /// [height] is the height of the thumbnail.
+  /// [destPath] is the destination path of the thumbnail file.
+  /// [format] is the format of the thumbnail file, default is 'jpeg'.
+  /// Supported formats are 'jpeg' and 'png'.
+  /// [quality] is the quality of the thumbnail file,
+  /// defaults to 80 for 'jpeg' and 100 for 'png'.
+  Future<bool> saveThumbnailToFile({
+    required String uri,
+    required double width,
+    required double height,
+    required String destPath,
+    String? format,
+    int? quality,
+  }) {
+    return SafUtilPlatform.instance.saveThumbnailToFile(
+      uri: uri,
+      width: width,
+      height: height,
+      destPath: destPath,
+      format: format,
+      quality: quality,
+    );
+  }
 }
