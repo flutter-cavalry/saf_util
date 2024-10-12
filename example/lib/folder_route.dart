@@ -39,6 +39,15 @@ class _FolderRouteState extends State<FolderRoute> {
   Future<void> _reload() async {
     try {
       final contents = await _safUtilPlugin.list(widget.folder);
+      contents.sort((a, b) {
+        if (a.isDir && !b.isDir) {
+          return -1;
+        }
+        if (!a.isDir && b.isDir) {
+          return 1;
+        }
+        return a.name.compareTo(b.name);
+      });
       setState(() {
         _contents = contents;
       });
@@ -249,36 +258,38 @@ class _FolderRouteState extends State<FolderRoute> {
                   }
                 },
                 child: const Text('Rename')),
-            const SizedBox(width: 10),
-            OutlinedButton(
-                onPressed: () async {
-                  try {
-                    final thumbnailPath = tmpPath();
-                    final saved = await _safUtilPlugin.saveThumbnailToFile(
-                        uri: df.uri,
-                        width: 256,
-                        height: 256,
-                        destPath: thumbnailPath);
-                    final contentWidget = saved
-                        ? Image.file(File(thumbnailPath))
-                        : const Text('No thumbnail available for this file');
-                    if (!mounted) {
-                      return;
+            if (!df.isDir) ...[
+              const SizedBox(width: 10),
+              OutlinedButton(
+                  onPressed: () async {
+                    try {
+                      final thumbnailPath = tmpPath();
+                      final saved = await _safUtilPlugin.saveThumbnailToFile(
+                          uri: df.uri,
+                          width: 256,
+                          height: 256,
+                          destPath: thumbnailPath);
+                      final contentWidget = saved
+                          ? Image.file(File(thumbnailPath))
+                          : const Text('No thumbnail available for this file');
+                      if (!mounted) {
+                        return;
+                      }
+                      await FcQuickDialog.info(context,
+                          title: 'Result',
+                          contentWidget: contentWidget,
+                          okText: 'OK');
+                      await _reload();
+                    } catch (err) {
+                      if (!mounted) {
+                        return;
+                      }
+                      await FcQuickDialog.error(context,
+                          title: 'Error', error: err, okText: 'OK');
                     }
-                    await FcQuickDialog.info(context,
-                        title: 'Result',
-                        contentWidget: contentWidget,
-                        okText: 'OK');
-                    await _reload();
-                  } catch (err) {
-                    if (!mounted) {
-                      return;
-                    }
-                    await FcQuickDialog.error(context,
-                        title: 'Error', error: err, okText: 'OK');
-                  }
-                },
-                child: const Text('Get thumbnail'))
+                  },
+                  child: const Text('Get thumbnail'))
+            ]
           ],
         )
       ],
