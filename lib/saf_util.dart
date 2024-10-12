@@ -95,12 +95,14 @@ class SafUtil {
     return SafUtilPlatform.instance.copyTo(uri, isDir, newParentUri);
   }
 
-  /// Saves document thumbnail to a local file from the specified URI.
+  /// Saves the thumbnail of the specified document [uri] to a local file [destPath].
+  /// Image and video thumbnails are supported.
+  /// Returns true if the thumbnail is saved successfully.
   ///
-  /// [uri] is the URI of the file.
+  /// [uri] is the URI of the document.
+  /// [destPath] is the destination path to save the thumbnail.
   /// [width] is the width of the thumbnail.
   /// [height] is the height of the thumbnail.
-  /// [destPath] is the destination path of the thumbnail file.
   /// [format] is the format of the thumbnail file, default is 'jpeg'.
   /// Supported formats are 'jpeg' and 'png'.
   /// [quality] is the quality of the thumbnail file,
