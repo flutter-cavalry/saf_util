@@ -100,8 +100,8 @@ abstract class SafUtilPlatform extends PlatformInterface {
 
   Future<bool> saveThumbnailToFile({
     required String uri,
-    required double width,
-    required double height,
+    required int width,
+    required int height,
     required String destPath,
     String? format,
     int? quality,

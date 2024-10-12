@@ -109,8 +109,8 @@ class SafUtil {
   /// defaults to 80 for 'jpeg' and 100 for 'png'.
   Future<bool> saveThumbnailToFile({
     required String uri,
-    required double width,
-    required double height,
+    required int width,
+    required int height,
     required String destPath,
     String? format,
     int? quality,
