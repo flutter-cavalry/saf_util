@@ -1,3 +1,7 @@
+## 0.4.0
+
+- Relax minimum Dart and Flutter versions (Fixes #2).
+
 ## 0.3.0
 
 - `saveThumbnailToFile` width and height params should be int.
