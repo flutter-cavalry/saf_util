@@ -2,14 +2,16 @@ import 'dart:io';
 
 import 'package:fc_quick_dialog/fc_quick_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:saf_util/saf_util.dart';
 import 'package:saf_util/saf_util_platform_interface.dart';
 import 'package:tmp_path/tmp_path.dart';
 
 class FolderRoute extends StatefulWidget {
-  final String folder;
+  final String uri;
+  final String name;
 
-  const FolderRoute({super.key, required this.folder});
+  const FolderRoute({super.key, required this.uri, required this.name});
 
   @override
   State<FolderRoute> createState() => _FolderRouteState();
@@ -30,7 +32,7 @@ class _FolderRouteState extends State<FolderRoute> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Folder: ${widget.folder}'),
+        title: Text(widget.name),
       ),
       body: Padding(padding: const EdgeInsets.all(8), child: _buildBody()),
     );
@@ -38,7 +40,7 @@ class _FolderRouteState extends State<FolderRoute> {
 
   Future<void> _reload() async {
     try {
-      final contents = await _safUtilPlugin.list(widget.folder);
+      final contents = await _safUtilPlugin.list(widget.uri);
       contents.sort((a, b) {
         if (a.isDir && !b.isDir) {
           return -1;
@@ -63,7 +65,23 @@ class _FolderRouteState extends State<FolderRoute> {
   Widget _buildBody() {
     return Column(
       children: [
-        Text('Folder: ${widget.folder}'),
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text(widget.uri),
+            const SizedBox(width: 10),
+            ElevatedButton(
+                onPressed: () async {
+                  await Clipboard.setData(ClipboardData(text: widget.uri));
+                  if (!mounted) {
+                    return;
+                  }
+                  await FcQuickDialog.info(context,
+                      title: 'URI copied', content: widget.uri, okText: 'OK');
+                },
+                child: const Text('Copy URI')),
+          ],
+        ),
         const SizedBox(height: 20),
         Row(
           children: [
@@ -82,8 +100,8 @@ class _FolderRouteState extends State<FolderRoute> {
                   if (names == null) {
                     return;
                   }
-                  final child = await _safUtilPlugin.child(
-                      widget.folder, names.split('/'));
+                  final child =
+                      await _safUtilPlugin.child(widget.uri, names.split('/'));
                   if (!mounted) {
                     return;
                   }
@@ -121,7 +139,7 @@ class _FolderRouteState extends State<FolderRoute> {
                   }
                   final components = path.split('/');
                   final uriInfo =
-                      await _safUtilPlugin.mkdirp(widget.folder, components);
+                      await _safUtilPlugin.mkdirp(widget.uri, components);
                   if (!mounted) {
                     return;
                   }
@@ -161,7 +179,10 @@ class _FolderRouteState extends State<FolderRoute> {
                   const SizedBox(width: 10),
                   IconButton(
                       onPressed: () {
-                        final folderRoute = FolderRoute(folder: df.uri);
+                        final folderRoute = FolderRoute(
+                          uri: df.uri,
+                          name: df.name,
+                        );
                         Navigator.push<void>(
                           context,
                           MaterialPageRoute(builder: (context) => folderRoute),
@@ -182,7 +203,7 @@ class _FolderRouteState extends State<FolderRoute> {
         Wrap(
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            OutlinedButton(
+            ElevatedButton(
                 onPressed: () async {
                   try {
                     if (await FcQuickDialog.confirm(context,
@@ -204,7 +225,7 @@ class _FolderRouteState extends State<FolderRoute> {
                 },
                 child: const Text('Delete')),
             const SizedBox(width: 10),
-            OutlinedButton(
+            ElevatedButton(
                 onPressed: () async {
                   try {
                     final isTree = await _safUtilPlugin.documentFileFromUri(
@@ -226,7 +247,7 @@ class _FolderRouteState extends State<FolderRoute> {
                 },
                 child: const Text('documentFileFromUri')),
             const SizedBox(width: 10),
-            OutlinedButton(
+            ElevatedButton(
                 onPressed: () async {
                   try {
                     final newName = await FcQuickDialog.textInput(context,
@@ -260,7 +281,7 @@ class _FolderRouteState extends State<FolderRoute> {
                 child: const Text('Rename')),
             if (!df.isDir) ...[
               const SizedBox(width: 10),
-              OutlinedButton(
+              ElevatedButton(
                   onPressed: () async {
                     try {
                       final thumbnailPath = tmpPath();
