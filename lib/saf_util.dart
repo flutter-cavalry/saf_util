@@ -97,12 +97,13 @@ class SafUtil {
 
   /// Saves the thumbnail of the specified document [uri] to a local file [destPath].
   /// Image and video thumbnails are supported.
-  /// Returns true if the thumbnail is saved successfully.
+  /// Returns true if the thumbnail is saved successfully, or false if no
+  /// thumbnail found in the document.
   ///
   /// [uri] is the URI of the document.
-  /// [destPath] is the destination path to save the thumbnail.
-  /// [width] is the width of the thumbnail.
-  /// [height] is the height of the thumbnail.
+  /// [destPath] is the destination file path to save the thumbnail.
+  /// [width] is the max width of the thumbnail.
+  /// [height] is the max height of the thumbnail.
   /// [format] is the format of the thumbnail file, default is 'jpeg'.
   /// Supported formats are 'jpeg' and 'png'.
   /// [quality] is the quality of the thumbnail file,
