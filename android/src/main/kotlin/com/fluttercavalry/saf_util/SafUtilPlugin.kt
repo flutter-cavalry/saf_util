@@ -409,7 +409,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             )
           }
           intent.addFlags(
-            if (writePermission) Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            if (writePermission) Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
             else Intent.FLAG_GRANT_READ_URI_PERMISSION
           )
 
@@ -483,7 +483,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
               return@launch
             }
 
-            var bitmap: Bitmap? = null
+            val bitmap: Bitmap?
             // Use MediaMetadataRetriever for video files.
             if (mime.startsWith("video/")) {
               val mmr = MediaMetadataRetriever()
@@ -543,7 +543,8 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
           if (args.persistablePermission) {
             context.contentResolver.takePersistableUriPermission(
               uri,
-              Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+              if (args.writePermission) Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
+              else Intent.FLAG_GRANT_READ_URI_PERMISSION
             )
           }
         }
@@ -684,9 +685,9 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
 internal data class UriInfo(val uri: Uri, val name: String, val isDir: Boolean)
 
-internal open class PendingArguments;
+internal open class PendingArguments
 
 internal class PendingDirArguments(
   val writePermission: Boolean,
   val persistablePermission: Boolean,
-): PendingArguments();
+): PendingArguments()
