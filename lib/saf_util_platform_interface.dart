@@ -61,6 +61,21 @@ abstract class SafUtilPlatform extends PlatformInterface {
     throw UnimplementedError('openDirectory() has not been implemented.');
   }
 
+  Future<String?> openFile({
+    String? initialUri,
+    List<String>? mimeTypes,
+  }) {
+    throw UnimplementedError('openFile() has not been implemented.');
+  }
+
+  Future<List<String>?> openFiles({
+    String? initialUri,
+    List<String>? mimeTypes,
+    multiple = true,
+  }) {
+    throw UnimplementedError('openFiles() has not been implemented.');
+  }
+
   Future<List<SafDocumentFile>> list(String uri) {
     throw UnimplementedError('list() has not been implemented.');
   }

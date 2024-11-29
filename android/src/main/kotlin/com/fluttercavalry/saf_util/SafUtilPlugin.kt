@@ -39,6 +39,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   private var pendingResult: Result? = null
   private var pendingArguments: PendingArguments? = null
   private val requestCodeOpenDocumentTree = 1001
+  private val requestCodeOpenFiles = 1002
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "saf_util")
@@ -389,13 +390,13 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             return
           }
           if (pendingResult != null) {
-            result.error("ALREADY_PICKING", "A folder picking process is already in progress", null)
+            result.error("ALREADY_PICKING", "Another picker process is already in progress", null)
             return
           }
 
           // Store the result to return the URI later
           pendingResult = result
-          pendingArguments = PendingArguments(writePermission, persistablePermission)
+          pendingArguments = PendingDirArguments(writePermission, persistablePermission)
           val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
           if (initialUri != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -414,7 +415,50 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
           activity?.startActivityForResult(intent, requestCodeOpenDocumentTree)
         } catch (err: Exception) {
-            result.error("PluginError", err.message, null)
+          result.error("PluginError", err.message, null)
+        }
+      }
+
+      "openFiles" -> {
+        try {
+          val initialUri = call.argument<String>("initialUri")
+          val multiple = call.argument<Boolean>("multiple") ?: false
+          val mimeTypes = call.argument<ArrayList<String>>("mimeTypes") ?: arrayListOf()
+
+          if (activity == null) {
+            result.error("NO_ACTIVITY", "Activity is null", null)
+            return
+          }
+          if (pendingResult != null) {
+            result.error("ALREADY_PICKING", "Another picker process is already in progress", null)
+            return
+          }
+
+          // Store the result to return the URI later
+          pendingResult = result
+          val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+          intent.addCategory(Intent.CATEGORY_OPENABLE)
+          if (initialUri != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+              intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(initialUri))
+            }
+          }
+          if (multiple) {
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+          }
+
+          if (mimeTypes.isEmpty()) {
+            intent.type = "*/*"
+          } else if (mimeTypes.size == 1) {
+            intent.type = mimeTypes[0]
+          } else {
+            intent.type = "*/*"
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toTypedArray())
+          }
+
+          activity?.startActivityForResult(intent, requestCodeOpenFiles)
+        } catch (err: Exception) {
+          result.error("PluginError", err.message, null)
         }
       }
 
@@ -491,10 +535,12 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       return
     }
     if (requestCode == requestCodeOpenDocumentTree) {
+      // Handle the result of the folder picker.
       if (resultCode == Activity.RESULT_OK && data != null) {
         val uri: Uri? = data.data
-        if (uri != null && pendingArguments != null) {
-          if (pendingArguments!!.persistablePermission) {
+        if (uri != null && pendingArguments is PendingDirArguments) {
+          val args = pendingArguments as PendingDirArguments
+          if (args.persistablePermission) {
             context.contentResolver.takePersistableUriPermission(
               uri,
               Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
@@ -505,9 +551,31 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       } else {
         pendingResult?.success(null)
       }
-      pendingResult = null
-      pendingArguments = null
+    } else if (requestCode == requestCodeOpenFiles) {
+      // Handle the result of file picker.
+      if (resultCode == Activity.RESULT_OK && data != null) {
+        val uris: List<Uri> = if (data.clipData != null) {
+          val clipData = data.clipData
+          val uris = mutableListOf<Uri>()
+          for (i in 0 until clipData!!.itemCount) {
+            uris.add(clipData.getItemAt(i).uri)
+          }
+          uris
+        } else {
+          listOf(data.data!!)
+        }
+        pendingResult?.success(uris.map { it.toString() })  // Return the URIs to Flutter
+      } else {
+        pendingResult?.success(null)
+      }
+    } else {
+      // Ignore other requests.
+      pendingResult?.success(null)
     }
+
+    // Clear the pending result and arguments.
+    pendingResult = null
+    pendingArguments = null
   }
 
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
@@ -616,7 +684,9 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
 internal data class UriInfo(val uri: Uri, val name: String, val isDir: Boolean)
 
-internal data class PendingArguments(
+internal open class PendingArguments;
+
+internal class PendingDirArguments(
   val writePermission: Boolean,
-  val persistablePermission: Boolean
-)
+  val persistablePermission: Boolean,
+): PendingArguments();

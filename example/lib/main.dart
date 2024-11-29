@@ -16,6 +16,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final _safUtilPlugin = SafUtil();
   var _status = '';
+  var _multipleFiles = false;
   late TextEditingController _controller;
   var _initialUri = '';
 
@@ -69,6 +70,40 @@ class _MyAppState extends State<MyApp> {
               child: const Text('Select a folder'),
             ),
             const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  final res = await _safUtilPlugin.openFiles(
+                      initialUri: _initialUri, multiple: _multipleFiles);
+                  if (res == null) {
+                    return;
+                  }
+                  if (!context.mounted) {
+                    return;
+                  }
+
+                  String summary = 'You have selected ${res.length} files:\n';
+                  for (final uri in res) {
+                    final file =
+                        await _safUtilPlugin.documentFileFromUri(uri, false);
+                    if (file == null) {
+                      continue;
+                    }
+                    summary +=
+                        '${file.name}\nSize: ${file.length}\nUri:${file.uri}\n\n';
+                  }
+                  setState(() {
+                    _status = summary;
+                  });
+                } catch (err) {
+                  setState(() {
+                    _status = 'Error: $err';
+                  });
+                }
+              },
+              child: const Text('Select file/files'),
+            ),
+            const SizedBox(height: 10),
             Text(_status),
             const SizedBox(height: 10),
             Text('Initial URI'),
@@ -79,7 +114,16 @@ class _MyAppState extends State<MyApp> {
                   setState(() {
                     _initialUri = value;
                   });
-                })
+                }),
+            CheckboxListTile(
+                title: const Text('Pick multiple files'),
+                value: _multipleFiles,
+                onChanged: (value) {
+                  setState(() {
+                    _multipleFiles = value!;
+                  });
+                }),
+            const SizedBox(height: 10),
           ],
         ),
       ),

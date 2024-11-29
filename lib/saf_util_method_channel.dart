@@ -22,6 +22,32 @@ class MethodChannelSafUtil extends SafUtilPlatform {
   }
 
   @override
+  Future<String?> openFile({
+    String? initialUri,
+    List<String>? mimeTypes,
+  }) async {
+    final res = await methodChannel.invokeListMethod<String>('openFiles', {
+      'initialUri': initialUri,
+      'mimeTypes': mimeTypes,
+      'multiple': false,
+    });
+    return res?.first;
+  }
+
+  @override
+  Future<List<String>?> openFiles({
+    String? initialUri,
+    List<String>? mimeTypes,
+    multiple = true,
+  }) async {
+    return methodChannel.invokeListMethod<String>('openFiles', {
+      'initialUri': initialUri,
+      'mimeTypes': mimeTypes,
+      'multiple': multiple,
+    });
+  }
+
+  @override
   Future<List<SafDocumentFile>> list(String uri) async {
     final maps = await methodChannel
         .invokeListMethod<Map<dynamic, dynamic>>('list', {'uri': uri});

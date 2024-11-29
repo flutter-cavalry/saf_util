@@ -16,6 +16,37 @@ class SafUtil {
         persistablePermission: persistablePermission);
   }
 
+  /// Shows a file picker dialog and returns the selected file URI.
+  /// This calls [openFiles] with [multiple] set to false.
+  ///
+  /// [initialUri] is the initial URI to show in the dialog.
+  /// [mimeTypes] is a list of MIME types to filter the files.
+  Future<String?> openFile({
+    String? initialUri,
+    List<String>? mimeTypes,
+  }) {
+    return SafUtilPlatform.instance.openFile(
+      initialUri: initialUri,
+      mimeTypes: mimeTypes,
+    );
+  }
+
+  /// Shows a file picker dialog and returns a list of selected file URIs.
+  ///
+  /// [initialUri] is the initial URI to show in the dialog.
+  /// [mimeTypes] is a list of MIME types to filter the files.
+  Future<List<String>?> openFiles({
+    String? initialUri,
+    List<String>? mimeTypes,
+    multiple = true,
+  }) {
+    return SafUtilPlatform.instance.openFiles(
+      initialUri: initialUri,
+      mimeTypes: mimeTypes,
+      multiple: multiple,
+    );
+  }
+
   /// Lists the contents of the specified directory URI.
   /// Returns a list of [SafDocumentFile] objects.
   ///
