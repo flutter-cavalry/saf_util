@@ -1,3 +1,8 @@
+## 0.5.0
+
+- Add `openFile` and `openFiles` to open file picker dialog.
+- Make sure read permission is always set when write permission is on.
+
 ## 0.4.0
 
 - Relax minimum Dart and Flutter versions (Fixes #2).
