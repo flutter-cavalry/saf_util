@@ -1,7 +1,7 @@
 import 'saf_util_platform_interface.dart';
 
 class SafUtil {
-  /// Shows a folder picker dialog and returns the selected folder URI.
+  /// Shows a folder picker dialog and returns the selected folder as [SafDocumentFile].
   ///
   /// [initialUri] is the initial URI to show in the dialog.
   /// [writePermission] is true if the folder should have write permission.
@@ -16,7 +16,7 @@ class SafUtil {
         persistablePermission: persistablePermission);
   }
 
-  /// Shows a file picker dialog and returns the selected file URI.
+  /// Shows a file picker dialog and returns the selected file [SafDocumentFile].
   /// This calls [pickFiles] with [multiple] set to false.
   ///
   /// [initialUri] is the initial URI to show in the dialog.
@@ -31,10 +31,11 @@ class SafUtil {
     );
   }
 
-  /// Shows a file picker dialog and returns a list of selected file URIs.
+  /// Shows a file picker dialog and returns a list of selected file [SafDocumentFile].
   ///
   /// [initialUri] is the initial URI to show in the dialog.
   /// [mimeTypes] is a list of MIME types to filter the files.
+  /// [multiple] is true if multiple files can be selected.
   Future<List<SafDocumentFile>?> pickFiles({
     String? initialUri,
     List<String>? mimeTypes,

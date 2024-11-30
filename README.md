@@ -8,31 +8,32 @@ Util functions for SAF (Storage Access Framework). Note that this package doesn'
 
 ```dart
 class SafUtil {
-  /// Shows a folder picker dialog and returns the selected folder URI.
+  /// Shows a folder picker dialog and returns the selected folder as [SafDocumentFile].
   ///
   /// [initialUri] is the initial URI to show in the dialog.
   /// [writePermission] is true if the folder should have write permission.
   /// [persistablePermission] is true if the permission should be persistable.
-  Future<String?> openDirectory(
+  Future<SafDocumentFile?> pickDirectory(
       {String? initialUri,
       bool? writePermission,
       bool? persistablePermission});
 
-  /// Shows a file picker dialog and returns the selected file URI.
-  /// This calls [openFiles] with [multiple] set to false.
+  /// Shows a file picker dialog and returns the selected file [SafDocumentFile].
+  /// This calls [pickFiles] with [multiple] set to false.
   ///
   /// [initialUri] is the initial URI to show in the dialog.
   /// [mimeTypes] is a list of MIME types to filter the files.
-  Future<String?> openFile({
+  Future<SafDocumentFile?> pickFile({
     String? initialUri,
     List<String>? mimeTypes,
   });
 
-  /// Shows a file picker dialog and returns a list of selected file URIs.
+  /// Shows a file picker dialog and returns a list of selected file [SafDocumentFile].
   ///
   /// [initialUri] is the initial URI to show in the dialog.
   /// [mimeTypes] is a list of MIME types to filter the files.
-  Future<List<String>?> openFiles({
+  /// [multiple] is true if multiple files can be selected.
+  Future<List<SafDocumentFile>?> pickFiles({
     String? initialUri,
     List<String>? mimeTypes,
     multiple = true,
