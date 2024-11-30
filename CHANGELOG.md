@@ -1,3 +1,7 @@
+## 0.6.1
+
+- Update docs.
+
 ## 0.6.0
 
 - Add `pickFiles` and `pickDirectory` to replace `openFile` and `openDirectory`. The new methods return [DocumentFile] instead of Uri string.
