@@ -10,15 +10,46 @@ class MethodChannelSafUtil extends SafUtilPlatform {
   final methodChannel = const MethodChannel('saf_util');
 
   @override
-  Future<String?> openDirectory(
+  Future<SafDocumentFile?> pickDirectory(
       {String? initialUri,
       bool? writePermission,
       bool? persistablePermission}) async {
-    return methodChannel.invokeMethod<String>('openDirectory', {
+    final map =
+        await methodChannel.invokeMapMethod<String, dynamic>('pickDirectory', {
       'initialUri': initialUri,
       'writePermission': writePermission,
       'persistablePermission': persistablePermission,
     });
+    if (map == null) {
+      return null;
+    }
+    return SafDocumentFile.fromMap(map);
+  }
+
+  @override
+  Future<String?> openDirectory(
+      {String? initialUri,
+      bool? writePermission,
+      bool? persistablePermission}) async {
+    final res = await pickDirectory(
+      initialUri: initialUri,
+      writePermission: writePermission,
+      persistablePermission: persistablePermission,
+    );
+    return res?.uri;
+  }
+
+  @override
+  Future<SafDocumentFile?> pickFile({
+    String? initialUri,
+    List<String>? mimeTypes,
+  }) async {
+    final res = await pickFiles(
+      initialUri: initialUri,
+      mimeTypes: mimeTypes,
+      multiple: false,
+    );
+    return res?.first;
   }
 
   @override
@@ -26,12 +57,26 @@ class MethodChannelSafUtil extends SafUtilPlatform {
     String? initialUri,
     List<String>? mimeTypes,
   }) async {
-    final res = await methodChannel.invokeListMethod<String>('openFiles', {
+    final res = await pickFile(
+      initialUri: initialUri,
+      mimeTypes: mimeTypes,
+    );
+    return res?.uri;
+  }
+
+  @override
+  Future<List<SafDocumentFile>?> pickFiles({
+    String? initialUri,
+    List<String>? mimeTypes,
+    multiple = true,
+  }) async {
+    final maps = await methodChannel
+        .invokeListMethod<Map<dynamic, dynamic>>('pickFiles', {
       'initialUri': initialUri,
       'mimeTypes': mimeTypes,
-      'multiple': false,
+      'multiple': multiple,
     });
-    return res?.first;
+    return maps?.map((map) => SafDocumentFile.fromMap(map)).toList();
   }
 
   @override
@@ -40,11 +85,12 @@ class MethodChannelSafUtil extends SafUtilPlatform {
     List<String>? mimeTypes,
     multiple = true,
   }) async {
-    return methodChannel.invokeListMethod<String>('openFiles', {
-      'initialUri': initialUri,
-      'mimeTypes': mimeTypes,
-      'multiple': multiple,
-    });
+    final res = await pickFiles(
+      initialUri: initialUri,
+      mimeTypes: mimeTypes,
+      multiple: multiple,
+    );
+    return res?.map((file) => file.uri).toList();
   }
 
   @override

@@ -148,7 +148,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
               return@launch
             }
             launch(Dispatchers.Main) {
-              result.success(fileObjMapFromDocumentFile(df))
+              result.success(documentFileToMap(df))
             }
           } catch (err: Exception) {
             launch(Dispatchers.Main) {
@@ -239,7 +239,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             }
 
             launch(Dispatchers.Main) {
-              result.success(fileObjMapFromDocumentFile(curDocument))
+              result.success(documentFileToMap(curDocument))
             }
           } catch (err: Exception) {
             launch(Dispatchers.Main) {
@@ -268,7 +268,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             }
 
             launch(Dispatchers.Main) {
-              result.success(fileObjMapFromDocumentFile(curDocument))
+              result.success(documentFileToMap(curDocument))
             }
           } catch (err: Exception) {
             launch(Dispatchers.Main) {
@@ -292,7 +292,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                 throw Exception("Failed to rename to $newName")
               }
               launch(Dispatchers.Main) {
-                result.success(fileObjMapFromDocumentFile(df))
+                result.success(documentFileToMap(df))
               }
             } else {
               val newUri = renameFileDocumentFile(df, newName)
@@ -300,7 +300,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
               val newDF = documentFileFromUriObj(newUri, false)
                 ?: throw Exception("Failed to get DocumentFile from $newUri")
               launch(Dispatchers.Main) {
-                result.success(fileObjMapFromDocumentFile(newDF))
+                result.success(documentFileToMap(newDF))
               }
             }
           } catch (err: Exception) {
@@ -336,7 +336,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
             val resultDF = documentFileFromUriObj(resUri, isDir) ?: throw Exception("Failed to get DocumentFile from $resUri")
             launch(Dispatchers.Main) {
-              result.success(fileObjMapFromDocumentFile(resultDF))
+              result.success(documentFileToMap(resultDF))
             }
           } catch (err: Exception) {
             launch(Dispatchers.Main) {
@@ -369,7 +369,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             val resultDF = documentFileFromUriObj(resUri, isDir) ?: throw Exception("Failed to get DocumentFile from $resUri")
 
             launch(Dispatchers.Main) {
-              result.success(fileObjMapFromDocumentFile(resultDF))
+              result.success(documentFileToMap(resultDF))
             }
           } catch (err: Exception) {
             launch(Dispatchers.Main) {
@@ -379,7 +379,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         }
       }
 
-      "openDirectory" -> {
+      "pickDirectory" -> {
         try {
           val initialUri = call.argument<String>("initialUri")
           val writePermission = call.argument<Boolean>("writePermission") ?: false
@@ -419,7 +419,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         }
       }
 
-      "openFiles" -> {
+      "pickFiles" -> {
         try {
           val initialUri = call.argument<String>("initialUri")
           val multiple = call.argument<Boolean>("multiple") ?: false
@@ -549,7 +549,11 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
               )
             }
           }
-          pendingResult?.success(uri?.toString())  // Return the URI to Flutter
+          val df = documentFileFromUri(uri.toString(), true)
+          pendingResult?.success(
+            if (df != null) documentFileToMap(df)
+            else null
+          )
         } else {
           pendingResult?.success(null)
         }
@@ -566,7 +570,16 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
           } else {
             listOf(data.data!!)
           }
-          pendingResult?.success(uris.map { it.toString() })  // Return the URIs to Flutter
+
+          val documentFileMaps: MutableList<Map<String, Any?>> = mutableListOf()
+          for (uri in uris) {
+            val df = documentFileFromUri(uri.toString(), false)
+            if (df != null) {
+              documentFileMaps.add(documentFileToMap(df))
+            }
+          }
+
+          pendingResult?.success(documentFileMaps)  // Return the URIs to Flutter
         } else {
           pendingResult?.success(null)
         }
@@ -653,7 +666,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     }
   }
 
-  private fun fileObjMapFromDocumentFile(file: DocumentFile): Map<String, Any?> {
+  private fun documentFileToMap(file: DocumentFile): Map<String, Any?> {
     return fileObjMap(
       file.uri,
       file.isDirectory,

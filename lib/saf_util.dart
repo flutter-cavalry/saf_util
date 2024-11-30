@@ -6,26 +6,26 @@ class SafUtil {
   /// [initialUri] is the initial URI to show in the dialog.
   /// [writePermission] is true if the folder should have write permission.
   /// [persistablePermission] is true if the permission should be persistable.
-  Future<String?> openDirectory(
+  Future<SafDocumentFile?> pickDirectory(
       {String? initialUri,
       bool? writePermission,
       bool? persistablePermission}) {
-    return SafUtilPlatform.instance.openDirectory(
+    return SafUtilPlatform.instance.pickDirectory(
         initialUri: initialUri,
         writePermission: writePermission,
         persistablePermission: persistablePermission);
   }
 
   /// Shows a file picker dialog and returns the selected file URI.
-  /// This calls [openFiles] with [multiple] set to false.
+  /// This calls [pickFiles] with [multiple] set to false.
   ///
   /// [initialUri] is the initial URI to show in the dialog.
   /// [mimeTypes] is a list of MIME types to filter the files.
-  Future<String?> openFile({
+  Future<SafDocumentFile?> pickFile({
     String? initialUri,
     List<String>? mimeTypes,
   }) {
-    return SafUtilPlatform.instance.openFile(
+    return SafUtilPlatform.instance.pickFile(
       initialUri: initialUri,
       mimeTypes: mimeTypes,
     );
@@ -35,12 +35,12 @@ class SafUtil {
   ///
   /// [initialUri] is the initial URI to show in the dialog.
   /// [mimeTypes] is a list of MIME types to filter the files.
-  Future<List<String>?> openFiles({
+  Future<List<SafDocumentFile>?> pickFiles({
     String? initialUri,
     List<String>? mimeTypes,
     multiple = true,
   }) {
-    return SafUtilPlatform.instance.openFiles(
+    return SafUtilPlatform.instance.pickFiles(
       initialUri: initialUri,
       mimeTypes: mimeTypes,
       multiple: multiple,
@@ -154,6 +154,57 @@ class SafUtil {
       destPath: destPath,
       format: format,
       quality: quality,
+    );
+  }
+
+  /** Deprecated functions. */
+
+  /// Shows a folder picker dialog and returns the selected folder URI.
+  ///
+  /// [initialUri] is the initial URI to show in the dialog.
+  /// [writePermission] is true if the folder should have write permission.
+  /// [persistablePermission] is true if the permission should be persistable.
+  @Deprecated('Use [pickDirectory] instead, which returns a [SafDocumentFile].')
+  Future<String?> openDirectory(
+      {String? initialUri,
+      bool? writePermission,
+      bool? persistablePermission}) {
+    return SafUtilPlatform.instance.openDirectory(
+        initialUri: initialUri,
+        writePermission: writePermission,
+        persistablePermission: persistablePermission);
+  }
+
+  /// Shows a file picker dialog and returns the selected file URI.
+  /// This calls [openFiles] with [multiple] set to false.
+  ///
+  /// [initialUri] is the initial URI to show in the dialog.
+  /// [mimeTypes] is a list of MIME types to filter the files.
+  @Deprecated('Use [pickFile] instead, which returns a [SafDocumentFile].')
+  Future<String?> openFile({
+    String? initialUri,
+    List<String>? mimeTypes,
+  }) {
+    return SafUtilPlatform.instance.openFile(
+      initialUri: initialUri,
+      mimeTypes: mimeTypes,
+    );
+  }
+
+  /// Shows a file picker dialog and returns a list of selected file URIs.
+  ///
+  /// [initialUri] is the initial URI to show in the dialog.
+  /// [mimeTypes] is a list of MIME types to filter the files.
+  @Deprecated('Use [pickFiles] instead, which returns a [SafDocumentFile].')
+  Future<List<String>?> openFiles({
+    String? initialUri,
+    List<String>? mimeTypes,
+    multiple = true,
+  }) {
+    return SafUtilPlatform.instance.openFiles(
+      initialUri: initialUri,
+      mimeTypes: mimeTypes,
+      multiple: multiple,
     );
   }
 }

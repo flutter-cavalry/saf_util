@@ -54,6 +54,13 @@ abstract class SafUtilPlatform extends PlatformInterface {
     _instance = instance;
   }
 
+  Future<SafDocumentFile?> pickDirectory(
+      {String? initialUri,
+      bool? writePermission,
+      bool? persistablePermission}) {
+    throw UnimplementedError('pickDirectory() has not been implemented.');
+  }
+
   Future<String?> openDirectory(
       {String? initialUri,
       bool? writePermission,
@@ -61,11 +68,26 @@ abstract class SafUtilPlatform extends PlatformInterface {
     throw UnimplementedError('openDirectory() has not been implemented.');
   }
 
+  Future<SafDocumentFile?> pickFile({
+    String? initialUri,
+    List<String>? mimeTypes,
+  }) {
+    throw UnimplementedError('pickFile() has not been implemented.');
+  }
+
   Future<String?> openFile({
     String? initialUri,
     List<String>? mimeTypes,
   }) {
     throw UnimplementedError('openFile() has not been implemented.');
+  }
+
+  Future<List<SafDocumentFile>?> pickFiles({
+    String? initialUri,
+    List<String>? mimeTypes,
+    multiple = true,
+  }) {
+    throw UnimplementedError('pickFiles() has not been implemented.');
   }
 
   Future<List<String>?> openFiles({
