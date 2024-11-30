@@ -534,44 +534,48 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     if (pendingResult == null) {
       return
     }
-    if (requestCode == requestCodeOpenDocumentTree) {
-      // Handle the result of the folder picker.
-      if (resultCode == Activity.RESULT_OK && data != null) {
-        val uri: Uri? = data.data
-        if (uri != null && pendingArguments is PendingDirArguments) {
-          val args = pendingArguments as PendingDirArguments
-          if (args.persistablePermission) {
-            context.contentResolver.takePersistableUriPermission(
-              uri,
-              if (args.writePermission) Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
-              else Intent.FLAG_GRANT_READ_URI_PERMISSION
-            )
+    try {
+      if (requestCode == requestCodeOpenDocumentTree) {
+        // Handle the result of the folder picker.
+        if (resultCode == Activity.RESULT_OK && data != null) {
+          val uri: Uri? = data.data
+          if (uri != null && pendingArguments is PendingDirArguments) {
+            val args = pendingArguments as PendingDirArguments
+            if (args.persistablePermission) {
+              context.contentResolver.takePersistableUriPermission(
+                uri,
+                if (args.writePermission) Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                else Intent.FLAG_GRANT_READ_URI_PERMISSION
+              )
+            }
           }
-        }
-        pendingResult?.success(uri?.toString())  // Return the URI to Flutter
-      } else {
-        pendingResult?.success(null)
-      }
-    } else if (requestCode == requestCodeOpenFiles) {
-      // Handle the result of file picker.
-      if (resultCode == Activity.RESULT_OK && data != null) {
-        val uris: List<Uri> = if (data.clipData != null) {
-          val clipData = data.clipData
-          val uris = mutableListOf<Uri>()
-          for (i in 0 until clipData!!.itemCount) {
-            uris.add(clipData.getItemAt(i).uri)
-          }
-          uris
+          pendingResult?.success(uri?.toString())  // Return the URI to Flutter
         } else {
-          listOf(data.data!!)
+          pendingResult?.success(null)
         }
-        pendingResult?.success(uris.map { it.toString() })  // Return the URIs to Flutter
+      } else if (requestCode == requestCodeOpenFiles) {
+        // Handle the result of file picker.
+        if (resultCode == Activity.RESULT_OK && data != null) {
+          val uris: List<Uri> = if (data.clipData != null) {
+            val clipData = data.clipData
+            val uris = mutableListOf<Uri>()
+            for (i in 0 until clipData!!.itemCount) {
+              uris.add(clipData.getItemAt(i).uri)
+            }
+            uris
+          } else {
+            listOf(data.data!!)
+          }
+          pendingResult?.success(uris.map { it.toString() })  // Return the URIs to Flutter
+        } else {
+          pendingResult?.success(null)
+        }
       } else {
+        // Ignore other requests.
         pendingResult?.success(null)
       }
-    } else {
-      // Ignore other requests.
-      pendingResult?.success(null)
+    } catch (err: Exception) {
+      pendingResult?.error("PluginError", err.message, null)
     }
 
     // Clear the pending result and arguments.
