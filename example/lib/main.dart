@@ -45,17 +45,17 @@ class _MyAppState extends State<MyApp> {
             ElevatedButton(
               onPressed: () async {
                 try {
-                  final uri = await _safUtilPlugin.openDirectory(
+                  final dir = await _safUtilPlugin.pickDirectory(
                       writePermission: true, initialUri: _initialUri);
-                  if (uri == null) {
+                  if (dir == null) {
                     return;
                   }
                   if (!context.mounted) {
                     return;
                   }
                   final folderRoute = FolderRoute(
-                    uri: uri,
-                    name: 'Root',
+                    uri: dir.uri,
+                    name: dir.name,
                   );
                   await Navigator.push<void>(
                     context,
@@ -73,22 +73,17 @@ class _MyAppState extends State<MyApp> {
             ElevatedButton(
               onPressed: () async {
                 try {
-                  final res = await _safUtilPlugin.openFiles(
+                  final files = await _safUtilPlugin.pickFiles(
                       initialUri: _initialUri, multiple: _multipleFiles);
-                  if (res == null) {
+                  if (files == null) {
                     return;
                   }
                   if (!context.mounted) {
                     return;
                   }
 
-                  String summary = 'You have selected ${res.length} files:\n';
-                  for (final uri in res) {
-                    final file =
-                        await _safUtilPlugin.documentFileFromUri(uri, false);
-                    if (file == null) {
-                      continue;
-                    }
+                  String summary = 'You have selected ${files.length} files:\n';
+                  for (final file in files) {
                     summary +=
                         '${file.name}\nSize: ${file.length}\nUri:${file.uri}\n\n';
                   }
