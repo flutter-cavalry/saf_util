@@ -1,3 +1,7 @@
+## 0.6.0
+
+- Add `pickFiles` and `pickDirectory` to replace `openFile` and `openDirectory`. The new methods return [DocumentFile] instead of Uri string.
+
 ## 0.5.0
 
 - Add `openFile` and `openFiles` to open file picker dialog.
