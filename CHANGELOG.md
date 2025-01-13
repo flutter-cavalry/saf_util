@@ -1,3 +1,7 @@
+## 0.6.2
+
+- Fix length overflow.
+
 ## 0.6.1
 
 - Update docs.
