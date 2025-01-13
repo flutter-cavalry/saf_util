@@ -64,12 +64,13 @@ class _FolderRouteState extends State<FolderRoute> {
 
   Widget _buildBody() {
     return Column(
+      spacing: 10,
       children: [
         Wrap(
+          spacing: 8,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Text(widget.uri),
-            const SizedBox(width: 10),
             ElevatedButton(
                 onPressed: () async {
                   await Clipboard.setData(ClipboardData(text: widget.uri));
@@ -82,14 +83,12 @@ class _FolderRouteState extends State<FolderRoute> {
                 child: const Text('Copy URI')),
           ],
         ),
-        const SizedBox(height: 20),
         Row(
           children: [
             ElevatedButton(
               onPressed: _reload,
               child: const Text('Reload'),
             ),
-            const SizedBox(width: 20),
             ElevatedButton(
               onPressed: () async {
                 try {
@@ -126,7 +125,6 @@ class _FolderRouteState extends State<FolderRoute> {
               },
               child: const Text('Find child'),
             ),
-            const SizedBox(width: 20),
             ElevatedButton(
               onPressed: () async {
                 try {
@@ -160,7 +158,6 @@ class _FolderRouteState extends State<FolderRoute> {
             ),
           ],
         ),
-        const SizedBox(height: 20),
         Expanded(child: _buildList()),
       ],
     );
@@ -168,15 +165,15 @@ class _FolderRouteState extends State<FolderRoute> {
 
   Widget _buildItemView(SafDocumentFile df) {
     return Column(
+      spacing: 8,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         df.isDir
             ? Row(
+                spacing: 8,
                 children: [
                   const Icon(Icons.folder),
-                  const SizedBox(width: 10),
                   Text(df.name),
-                  const SizedBox(width: 10),
                   IconButton(
                       onPressed: () {
                         final folderRoute = FolderRoute(
@@ -192,15 +189,13 @@ class _FolderRouteState extends State<FolderRoute> {
                 ],
               )
             : Text(df.name),
-        const SizedBox(height: 10),
         Text(df.uri),
         if (df.lastModified != 0) ...[
-          const SizedBox(height: 10),
           Text(
               'Last modified: ${DateTime.fromMillisecondsSinceEpoch(df.lastModified)}'),
         ],
-        const SizedBox(height: 10),
         Wrap(
+          spacing: 8,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             ElevatedButton(
@@ -224,7 +219,6 @@ class _FolderRouteState extends State<FolderRoute> {
                   }
                 },
                 child: const Text('Delete')),
-            const SizedBox(width: 10),
             ElevatedButton(
                 onPressed: () async {
                   try {
@@ -246,7 +240,6 @@ class _FolderRouteState extends State<FolderRoute> {
                   }
                 },
                 child: const Text('documentFileFromUri')),
-            const SizedBox(width: 10),
             ElevatedButton(
                 onPressed: () async {
                   try {
@@ -280,7 +273,6 @@ class _FolderRouteState extends State<FolderRoute> {
                 },
                 child: const Text('Rename')),
             if (!df.isDir) ...[
-              const SizedBox(width: 10),
               ElevatedButton(
                   onPressed: () async {
                     try {
