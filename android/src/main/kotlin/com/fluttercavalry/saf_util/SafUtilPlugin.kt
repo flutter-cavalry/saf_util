@@ -114,7 +114,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                 documentUri,
                 isDirectory,
                 fileName,
-                fileSize.toInt(),
+                fileSize,
                 lastModified,
               )
               results.add(fileInfo)
@@ -671,7 +671,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       file.uri,
       file.isDirectory,
       file.name ?: "",
-      file.length().toInt(),
+      file.length(),
       file.lastModified(),
     )
   }
@@ -680,7 +680,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     uri: Uri,
     isDir: Boolean,
     name: String,
-    length: Int,
+    length: Long,
     lastMod: Long,
   ): Map<String, Any?> {
     return mapOf(
