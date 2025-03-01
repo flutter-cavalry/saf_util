@@ -10,6 +10,7 @@ import android.media.MediaMetadataRetriever
 import android.media.MediaMetadataRetriever.OPTION_CLOSEST_SYNC
 import android.net.Uri
 import android.os.Build
+import android.os.ParcelFileDescriptor
 import android.provider.DocumentsContract
 import androidx.documentfile.provider.DocumentFile
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -40,6 +41,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   private var pendingArguments: PendingArguments? = null
   private val requestCodeOpenDocumentTree = 1001
   private val requestCodeOpenFiles = 1002
+  private val fdMap = mutableMapOf<Int, ParcelFileDescriptor>()
 
   override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "saf_util")
@@ -191,6 +193,45 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             val df = documentFileFromUri(uri, isDir) ?: throw Exception("Failed to get DocumentFile from $uri")
             launch(Dispatchers.Main) {
               result.success(df.delete())
+            }
+          } catch (err: Exception) {
+            launch(Dispatchers.Main) {
+              result.error("PluginError", err.message, null)
+            }
+          }
+        }
+      }
+
+      "getFileDescriptor" -> {
+        CoroutineScope(Dispatchers.IO).launch {
+          try {
+            val uri = call.argument<String>("uri") as String
+
+            val df = documentFileFromUri(uri, false) ?: throw Exception("Failed to get DocumentFile from $uri")
+            val fd = context.contentResolver.openFileDescriptor(df.uri, "r") ?: throw Exception("Failed to open file descriptor")
+            val fdInt = fd.fd
+            fdMap[fdInt] = fd
+
+            launch(Dispatchers.Main) {
+              result.success(fdInt)
+            }
+          } catch (err: Exception) {
+            launch(Dispatchers.Main) {
+              result.error("PluginError", err.message, null)
+            }
+          }
+        }
+      }
+
+      "closeFileDescriptor" -> {
+        CoroutineScope(Dispatchers.IO).launch {
+          try {
+            val fdInt = call.argument<Int>("fd") as Int
+            val fd = fdMap.remove(fdInt)
+            fd?.close()
+
+            launch(Dispatchers.Main) {
+              result.success(null)
             }
           } catch (err: Exception) {
             launch(Dispatchers.Main) {

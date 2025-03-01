@@ -145,4 +145,12 @@ abstract class SafUtilPlatform extends PlatformInterface {
   }) {
     throw UnimplementedError('saveThumbnailToFile() has not been implemented.');
   }
+
+  Future<int> getFileDescriptor(String uri) {
+    throw UnimplementedError('getFileDescriptor() has not been implemented.');
+  }
+
+  Future<void> closeFileDescriptor(int fd) {
+    throw UnimplementedError('closeFileDescriptor() has not been implemented.');
+  }
 }

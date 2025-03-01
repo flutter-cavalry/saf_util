@@ -301,7 +301,28 @@ class _FolderRouteState extends State<FolderRoute> {
                           title: 'Error', error: err, okText: 'OK');
                     }
                   },
-                  child: const Text('Get thumbnail'))
+                  child: const Text('Get thumbnail')),
+              ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      final fd = await _safUtilPlugin.getFileDescriptor(df.uri);
+                      if (!mounted) {
+                        return;
+                      }
+                      await FcQuickDialog.info(context,
+                          title: 'Result',
+                          content: 'File descriptor: $fd',
+                          okText: 'OK');
+                      await _safUtilPlugin.closeFileDescriptor(fd);
+                    } catch (err) {
+                      if (!mounted) {
+                        return;
+                      }
+                      await FcQuickDialog.error(context,
+                          title: 'Error', error: err, okText: 'OK');
+                    }
+                  },
+                  child: const Text('Get file descriptor')),
             ]
           ],
         )

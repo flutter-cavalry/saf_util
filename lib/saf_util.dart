@@ -208,4 +208,14 @@ class SafUtil {
       multiple: multiple,
     );
   }
+
+  /// Gets the file descriptor of the specified URI.
+  Future<int> getFileDescriptor(String uri) {
+    return SafUtilPlatform.instance.getFileDescriptor(uri);
+  }
+
+  /// Closes the specified file descriptor.
+  Future<void> closeFileDescriptor(int fd) {
+    return SafUtilPlatform.instance.closeFileDescriptor(fd);
+  }
 }

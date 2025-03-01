@@ -227,4 +227,24 @@ class MethodChannelSafUtil extends SafUtilPlatform {
     );
     return res ?? false;
   }
+
+  @override
+  Future<int> getFileDescriptor(String uri) async {
+    final res = await methodChannel.invokeMethod<int>(
+      'getFileDescriptor',
+      {'uri': uri},
+    );
+    if (res == null) {
+      throw Exception('Failed to get file descriptor: $uri');
+    }
+    return res;
+  }
+
+  @override
+  Future<void> closeFileDescriptor(int fd) {
+    return methodChannel.invokeMethod<void>(
+      'closeFileDescriptor',
+      {'fd': fd},
+    );
+  }
 }
