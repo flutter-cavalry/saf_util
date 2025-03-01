@@ -1,3 +1,7 @@
+## 0.7.0
+
+- Add file descriptor support.
+
 ## 0.6.2
 
 - Fix length overflow.
