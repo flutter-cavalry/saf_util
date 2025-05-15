@@ -153,4 +153,13 @@ abstract class SafUtilPlatform extends PlatformInterface {
   Future<void> closeFileDescriptor(int fd) {
     throw UnimplementedError('closeFileDescriptor() has not been implemented.');
   }
+
+  Future<bool> hasPersistedPermission(
+    String uri, {
+    bool checkRead = true,
+    bool checkWrite = false,
+  }) {
+    throw UnimplementedError(
+        'hasPersistedPermission() has not been implemented.');
+  }
 }

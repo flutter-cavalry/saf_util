@@ -247,4 +247,24 @@ class MethodChannelSafUtil extends SafUtilPlatform {
       {'fd': fd},
     );
   }
+
+  @override
+  Future<bool> hasPersistedPermission(
+    String uri, {
+    bool checkRead = true,
+    bool checkWrite = false,
+  }) async {
+    final res = await methodChannel.invokeMethod<bool>(
+      'hasPersistedPermission',
+      {
+        'uri': uri,
+        'checkRead': checkRead,
+        'checkWrite': checkWrite,
+      },
+    );
+    if (res == null) {
+      throw Exception('Failed to check persisted permission: $uri');
+    }
+    return res;
+  }
 }

@@ -24,6 +24,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
+import androidx.core.net.toUri
 
 
 /** SafUtilPlugin */
@@ -364,9 +365,9 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             val parentUri = call.argument<String>("parentUri") as String
             val newParentUri = call.argument<String>("newParentUri") as String
 
-            val uriObj = Uri.parse(uri)
-            val parentUriObj = Uri.parse(parentUri)
-            val newParentUriObj = Uri.parse(newParentUri)
+            val uriObj = uri.toUri()
+            val parentUriObj = parentUri.toUri()
+            val newParentUriObj = newParentUri.toUri()
 
             val resUri = DocumentsContract.moveDocument(
               context.contentResolver,
@@ -398,8 +399,8 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             val isDir = call.argument<Boolean>("isDir") as Boolean
             val newParentUri = call.argument<String>("newParentUri") as String
 
-            val uriObj = Uri.parse(uri)
-            val newParentUriObj = Uri.parse(newParentUri)
+            val uriObj = uri.toUri()
+            val newParentUriObj = newParentUri.toUri()
 
             val resUri = DocumentsContract.copyDocument(
               context.contentResolver,
@@ -441,7 +442,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
           val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
           if (initialUri != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-              intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(initialUri))
+              intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialUri.toUri())
             }
           }
           if (persistablePermission) {
@@ -481,7 +482,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
           intent.addCategory(Intent.CATEGORY_OPENABLE)
           if (initialUri != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-              intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, Uri.parse(initialUri))
+              intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialUri.toUri())
             }
           }
           if (multiple) {
@@ -503,10 +504,30 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         }
       }
 
+      "hasPersistedUriPermission" -> {
+        CoroutineScope(Dispatchers.Default).launch {
+          try {
+            val uri = call.argument<String>("uri") as String
+            val checkRead = call.argument<Boolean>("checkRead") ?: true
+            val checkWrite = call.argument<Boolean>("checkWrite") ?: false
+
+            val persisted = hasPersistedUriPermission(
+              context,
+              uri.toUri(),
+              checkRead,
+              checkWrite
+            )
+            result.success(persisted)
+          } catch (err: Exception) {
+            result.error("PluginError", err.message, null)
+          }
+        }
+      }
+
       "saveThumbnailToFile" -> {
         CoroutineScope(Dispatchers.Default).launch {
           try {
-            val uri = Uri.parse(call.argument("uri"))
+            val uri = (call.argument<String>("uri") as String).toUri()
             val dest = call.argument<String>("destPath")!!
             val format = call.argument<String>("format") ?: "jpeg"
             val isPng = format == "png"
@@ -642,7 +663,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   }
 
   private fun documentFileFromUri(uri: String, isDir: Boolean): DocumentFile? {
-    val uriObj = Uri.parse(uri)
+    val uriObj = uri.toUri()
     return documentFileFromUriObj(uriObj, isDir)
   }
 
@@ -653,6 +674,23 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       DocumentFile.fromSingleUri(context, uriObj)
     }
     return res
+  }
+
+  private fun hasPersistedUriPermission(
+    context: Context,
+    uri: Uri,
+    checkRead: Boolean,
+    checkWrite: Boolean
+  ): Boolean {
+    val permissions = context.contentResolver.persistedUriPermissions
+    for (permission in permissions) {
+      if (permission.uri == uri) {
+        val hasRead = !checkRead || permission.isReadPermission
+        val hasWrite = !checkWrite || permission.isWritePermission
+        return hasRead && hasWrite
+      }
+    }
+    return false
   }
 
   private fun findDirectChild(parentUri: Uri, name: String): UriInfo? {

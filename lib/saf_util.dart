@@ -218,4 +218,15 @@ class SafUtil {
   Future<void> closeFileDescriptor(int fd) {
     return SafUtilPlatform.instance.closeFileDescriptor(fd);
   }
+
+  /// Checks if the specified URI has persisted permission.
+  /// Use [checkRead] and [checkWrite] to specify the type of permission to check.
+  Future<bool> hasPersistedPermission(
+    String uri, {
+    bool checkRead = true,
+    bool checkWrite = false,
+  }) {
+    return SafUtilPlatform.instance.hasPersistedPermission(uri,
+        checkRead: checkRead, checkWrite: checkWrite);
+  }
 }

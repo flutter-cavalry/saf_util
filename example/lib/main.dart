@@ -41,6 +41,7 @@ class _MyAppState extends State<MyApp> {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          spacing: 10,
           children: [
             ElevatedButton(
               onPressed: () async {
@@ -69,7 +70,6 @@ class _MyAppState extends State<MyApp> {
               },
               child: const Text('Select a folder'),
             ),
-            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () async {
                 try {
@@ -98,11 +98,8 @@ class _MyAppState extends State<MyApp> {
               },
               child: const Text('Select file/files'),
             ),
-            const SizedBox(height: 10),
             Text(_status),
-            const SizedBox(height: 10),
             Text('Initial URI'),
-            const SizedBox(height: 10),
             TextField(
                 controller: _controller,
                 onChanged: (String value) {
@@ -118,7 +115,6 @@ class _MyAppState extends State<MyApp> {
                     _multipleFiles = value!;
                   });
                 }),
-            const SizedBox(height: 10),
           ],
         ),
       ),
