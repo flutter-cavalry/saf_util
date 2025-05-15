@@ -1,3 +1,4 @@
+import 'package:fc_quick_dialog/fc_quick_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:saf_util/saf_util.dart';
 import 'package:saf_util_example/folder_route.dart';
@@ -17,18 +18,23 @@ class _MyAppState extends State<MyApp> {
   final _safUtilPlugin = SafUtil();
   var _status = '';
   var _multipleFiles = false;
-  late TextEditingController _controller;
+  var _persistablePermission = false;
+  late TextEditingController _initialUriController;
   var _initialUri = '';
+  late TextEditingController _checkPersistablePermissionInputController;
+  var _checkPersistablePermissionInput = '';
 
   @override
   void initState() {
     super.initState();
-    _controller = TextEditingController();
+    _initialUriController = TextEditingController();
+    _checkPersistablePermissionInputController = TextEditingController();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _initialUriController.dispose();
+    _checkPersistablePermissionInputController.dispose();
     super.dispose();
   }
 
@@ -43,11 +49,13 @@ class _MyAppState extends State<MyApp> {
         child: Column(
           spacing: 10,
           children: [
-            ElevatedButton(
+            OutlinedButton(
               onPressed: () async {
                 try {
                   final dir = await _safUtilPlugin.pickDirectory(
-                      writePermission: true, initialUri: _initialUri);
+                      writePermission: true,
+                      initialUri: _initialUri,
+                      persistablePermission: _persistablePermission);
                   if (dir == null) {
                     return;
                   }
@@ -70,7 +78,7 @@ class _MyAppState extends State<MyApp> {
               },
               child: const Text('Select a folder'),
             ),
-            ElevatedButton(
+            OutlinedButton(
               onPressed: () async {
                 try {
                   final files = await _safUtilPlugin.pickFiles(
@@ -101,7 +109,7 @@ class _MyAppState extends State<MyApp> {
             Text(_status),
             Text('Initial URI'),
             TextField(
-                controller: _controller,
+                controller: _initialUriController,
                 onChanged: (String value) {
                   setState(() {
                     _initialUri = value;
@@ -115,6 +123,44 @@ class _MyAppState extends State<MyApp> {
                     _multipleFiles = value!;
                   });
                 }),
+            CheckboxListTile(
+                title: const Text('Persistable permission'),
+                value: _persistablePermission,
+                onChanged: (value) {
+                  setState(() {
+                    _persistablePermission = value!;
+                  });
+                }),
+            TextField(
+                controller: _checkPersistablePermissionInputController,
+                onChanged: (String value) {
+                  setState(() {
+                    _checkPersistablePermissionInput = value;
+                  });
+                }),
+            OutlinedButton(
+              onPressed: () async {
+                try {
+                  final input = _checkPersistablePermissionInput;
+                  if (input.isEmpty) {
+                    return;
+                  }
+                  final ok = await _safUtilPlugin.hasPersistedPermission(input);
+                  if (!context.mounted) {
+                    return;
+                  }
+                  await FcQuickDialog.info(context,
+                      title: 'Is persisted permission?',
+                      content: 'Persisted permission: $ok',
+                      okText: 'OK');
+                } catch (err) {
+                  setState(() {
+                    _status = 'Error: $err';
+                  });
+                }
+              },
+              child: const Text('Check URI permission persisted'),
+            ),
           ],
         ),
       ),

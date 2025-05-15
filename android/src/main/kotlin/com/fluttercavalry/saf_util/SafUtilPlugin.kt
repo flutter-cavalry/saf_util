@@ -504,7 +504,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         }
       }
 
-      "hasPersistedUriPermission" -> {
+      "hasPersistedPermission" -> {
         CoroutineScope(Dispatchers.Default).launch {
           try {
             val uri = call.argument<String>("uri") as String
@@ -684,13 +684,19 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   ): Boolean {
     val permissions = context.contentResolver.persistedUriPermissions
     for (permission in permissions) {
-      if (permission.uri == uri) {
+      if (areSameDocumentLocation(permission.uri, uri)) {
         val hasRead = !checkRead || permission.isReadPermission
         val hasWrite = !checkWrite || permission.isWritePermission
         return hasRead && hasWrite
       }
     }
     return false
+  }
+
+  private fun areSameDocumentLocation(treeUri: Uri, docUri: Uri): Boolean {
+    val treeDocId = DocumentsContract.getTreeDocumentId(treeUri)
+    val docId = DocumentsContract.getDocumentId(docUri)
+    return treeDocId == docId
   }
 
   private fun findDirectChild(parentUri: Uri, name: String): UriInfo? {
