@@ -1,3 +1,7 @@
+## 0.8.0
+
+- Add `hasPersistedPermission`.
+
 ## 0.7.0
 
 - Add file descriptor support.
