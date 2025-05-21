@@ -65,6 +65,17 @@ class SafUtil {
     return SafUtilPlatform.instance.documentFileFromUri(uri, isDir);
   }
 
+  /// Gets a [SafDocumentFile] object from the specified URI.
+  /// Unlike [documentFileFromUri], this method returns null
+  /// if the URI does not exist.
+  ///
+  /// [uri] is the URI of the file or directory.
+  /// [isDir] is true if the URI is a directory. [null] means
+  /// auto-detect.
+  Future<SafDocumentFile?> stat(String uri, bool? isDir) {
+    return SafUtilPlatform.instance.stat(uri, isDir);
+  }
+
   /// Checks if the specified file or directory exists.
   ///
   /// [uri] is the URI of the file or directory.

@@ -113,6 +113,18 @@ class MethodChannelSafUtil extends SafUtilPlatform {
   }
 
   @override
+  Future<SafDocumentFile?> stat(String uri, bool? isDir) async {
+    final map = await methodChannel.invokeMapMethod<String, dynamic>(
+      'stat',
+      {'uri': uri, 'isDir': isDir},
+    );
+    if (map == null) {
+      return null;
+    }
+    return SafDocumentFile.fromMap(map);
+  }
+
+  @override
   Future<bool> exists(String uri, bool isDir) async {
     final res = await methodChannel.invokeMethod<bool>(
       'exists',

@@ -161,6 +161,31 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         }
       }
 
+      "stat" -> {
+        // Unlike `documentFileFromUri` this returns null if `uri` doesn't exist.
+        CoroutineScope(Dispatchers.IO).launch {
+          try {
+            val uri = call.argument<String>("uri") as String
+            val isDir = call.argument<Boolean>("isDir")
+
+            val df = documentFileFromUri(uri, isDir)
+            if (df == null || !df.exists()) {
+              launch(Dispatchers.Main) {
+                result.success(null)
+              }
+              return@launch
+            }
+            launch(Dispatchers.Main) {
+              result.success(documentFileToMap(df))
+            }
+          } catch (err: Exception) {
+            launch(Dispatchers.Main) {
+              result.error("PluginError", err.message, null)
+            }
+          }
+        }
+      }
+
       "exists" -> {
         CoroutineScope(Dispatchers.IO).launch {
           try {

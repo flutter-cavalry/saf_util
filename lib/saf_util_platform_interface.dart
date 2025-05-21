@@ -106,6 +106,10 @@ abstract class SafUtilPlatform extends PlatformInterface {
     throw UnimplementedError('documentFileFromUri() has not been implemented.');
   }
 
+  Future<SafDocumentFile?> stat(String uri, bool? isDir) {
+    throw UnimplementedError('stat() has not been implemented.');
+  }
+
   Future<bool> exists(String uri, bool isDir) {
     throw UnimplementedError('exists() has not been implemented.');
   }

@@ -1,3 +1,7 @@
+## 0.10.0
+
+- Add `stat`. Unlike [documentFileFromUri], `stat` returns null if uri does not exist.
+
 ## 0.9.0
 
 - Auto detect path type when `documentFileFromUri.isDir` is null.
