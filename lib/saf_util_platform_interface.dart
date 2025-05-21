@@ -102,7 +102,7 @@ abstract class SafUtilPlatform extends PlatformInterface {
     throw UnimplementedError('list() has not been implemented.');
   }
 
-  Future<SafDocumentFile?> documentFileFromUri(String uri, bool isDir) {
+  Future<SafDocumentFile?> documentFileFromUri(String uri, bool? isDir) {
     throw UnimplementedError('documentFileFromUri() has not been implemented.');
   }
 

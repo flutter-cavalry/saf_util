@@ -1,3 +1,7 @@
+## 0.9.0
+
+- Auto detect path type when `documentFileFromUri.isDir` is null.
+
 ## 0.8.0
 
 - Add `hasPersistedPermission`.

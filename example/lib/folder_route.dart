@@ -243,6 +243,27 @@ class _FolderRouteState extends State<FolderRoute> {
             ElevatedButton(
                 onPressed: () async {
                   try {
+                    final isTree =
+                        await _safUtilPlugin.documentFileFromUri(df.uri, null);
+                    if (!mounted) {
+                      return;
+                    }
+                    await FcQuickDialog.info(context,
+                        title: 'documentFileFromUri',
+                        content: isTree.toString(),
+                        okText: 'OK');
+                  } catch (err) {
+                    if (!mounted) {
+                      return;
+                    }
+                    await FcQuickDialog.error(context,
+                        title: 'Error', error: err, okText: 'OK');
+                  }
+                },
+                child: const Text('documentFileFromUri (auto-detect isDir)')),
+            ElevatedButton(
+                onPressed: () async {
+                  try {
                     final newName = await FcQuickDialog.textInput(context,
                         title: 'Enter a new name',
                         okText: 'OK',

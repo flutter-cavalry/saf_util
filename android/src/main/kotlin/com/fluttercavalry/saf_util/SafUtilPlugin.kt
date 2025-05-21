@@ -141,7 +141,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
         CoroutineScope(Dispatchers.IO).launch {
           try {
             val uri = call.argument<String>("uri") as String
-            val isDir = call.argument<Boolean>("isDir") as Boolean
+            val isDir = call.argument<Boolean>("isDir")
 
             val df = documentFileFromUri(uri, isDir)
             if (df == null) {
@@ -662,9 +662,14 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
     channel.setMethodCallHandler(null)
   }
 
-  private fun documentFileFromUri(uri: String, isDir: Boolean): DocumentFile? {
+  private fun documentFileFromUri(uri: String, isDir: Boolean?): DocumentFile? {
     val uriObj = uri.toUri()
-    return documentFileFromUriObj(uriObj, isDir)
+    val isDirRes = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      isDir ?: DocumentsContract.isTreeUri(uriObj)
+    } else {
+      throw Exception("Auto-detect 'isDir' is only supported on Android N and above")
+    }
+    return documentFileFromUriObj(uriObj, isDirRes)
   }
 
   private fun documentFileFromUriObj(uriObj: Uri, isDir: Boolean): DocumentFile? {
