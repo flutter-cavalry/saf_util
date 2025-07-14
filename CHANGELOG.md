@@ -1,3 +1,7 @@
+## 0.11.0
+
+- Allow empty names in `.child`, which returns a [DocumentFile] from the first path param (like `stat`).
+
 ## 0.10.0
 
 - Add `stat`. Unlike [documentFileFromUri], `stat` returns null if uri does not exist.
