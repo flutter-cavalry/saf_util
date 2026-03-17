@@ -276,4 +276,17 @@ class MethodChannelSafUtil extends SafUtilPlatform {
     }
     return res;
   }
+
+  @override
+  Future<void> releasePersistedPermission(String uri,
+      {bool read = true, bool write = false}) async {
+    await methodChannel.invokeMethod<void>(
+      'releasePersistedPermission',
+      {
+        'uri': uri,
+        'read': read,
+        'write': write,
+      },
+    );
+  }
 }

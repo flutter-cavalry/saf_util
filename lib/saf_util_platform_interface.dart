@@ -166,4 +166,10 @@ abstract class SafUtilPlatform extends PlatformInterface {
     throw UnimplementedError(
         'hasPersistedPermission() has not been implemented.');
   }
+
+  Future<void> releasePersistedPermission(String uri,
+      {bool read = true, bool write = false}) {
+    throw UnimplementedError(
+        'releasePersistedPermission() has not been implemented.');
+  }
 }

@@ -530,7 +530,7 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       }
 
       "hasPersistedPermission" -> {
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.IO).launch {
           try {
             val uri = call.argument<String>("uri") as String
             val checkRead = call.argument<Boolean>("checkRead") ?: true
@@ -542,15 +542,44 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
               checkRead,
               checkWrite
             )
-            result.success(persisted)
+            launch(Dispatchers.Main) {
+              result.success(persisted)
+            }
           } catch (err: Exception) {
-            result.error("PluginError", err.message, null)
+            launch(Dispatchers.Main) {
+              result.error("PluginError", err.message, null)
+            }
+          }
+        }
+      }
+
+      "releasePersistedPermission" -> {
+        CoroutineScope(Dispatchers.IO).launch {
+          try {
+            val uri = call.argument<String>("uri") as String
+            val read = call.argument<Boolean>("read") ?: true
+            val write = call.argument<Boolean>("write") ?: false
+
+            context.contentResolver.releasePersistableUriPermission(
+              uri.toUri(),
+              if (read && write) Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+              else if (read) Intent.FLAG_GRANT_READ_URI_PERMISSION
+              else if (write) Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+              else 0
+            )
+            launch(Dispatchers.Main) {
+              result.success(null)
+            }
+          } catch (err: Exception) {
+            launch(Dispatchers.Main) {
+              result.error("PluginError", err.message, null)
+            }
           }
         }
       }
 
       "saveThumbnailToFile" -> {
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(Dispatchers.IO).launch {
           try {
             val uri = (call.argument<String>("uri") as String).toUri()
             val dest = call.argument<String>("destPath")!!

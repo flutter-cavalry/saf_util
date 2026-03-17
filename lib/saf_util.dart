@@ -233,6 +233,8 @@ class SafUtil {
 
   /// Checks if the specified URI has persisted permission.
   /// Use [checkRead] and [checkWrite] to specify the type of permission to check.
+  /// [checkRead] defaults to true.
+  /// [checkWrite] defaults to false.
   Future<bool> hasPersistedPermission(
     String uri, {
     bool checkRead = true,
@@ -240,5 +242,15 @@ class SafUtil {
   }) {
     return SafUtilPlatform.instance.hasPersistedPermission(uri,
         checkRead: checkRead, checkWrite: checkWrite);
+  }
+
+  /// Releases the persisted permission of the specified URI.
+  /// Use [read] and [write] to specify the type of permission to release.
+  /// [read] defaults to true.
+  /// [write] defaults to false.
+  Future<void> releasePersistedPermission(String uri,
+      {bool read = true, bool write = false}) async {
+    return SafUtilPlatform.instance
+        .releasePersistedPermission(uri, read: read, write: write);
   }
 }
