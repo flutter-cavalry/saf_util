@@ -1,3 +1,7 @@
+## 0.12.0
+
+- Add `releasePersistedPermission` to release the persisted permission of a URI.
+
 ## 0.11.0
 
 - Allow empty names in `.child`, which returns a [DocumentFile] from the first path param (like `stat`).
