@@ -1,3 +1,7 @@
+## 1.0.0
+
+- No changes. This is just a version bump to mark the stable release.
+
 ## 0.12.0
 
 - Add `releasePersistedPermission` to release the persisted permission of a URI.
