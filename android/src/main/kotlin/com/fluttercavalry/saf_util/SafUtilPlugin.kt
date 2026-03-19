@@ -379,10 +379,6 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       }
 
       "moveTo" -> {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-          result.error("PluginError", "moveTo is only supported on Android N and above", null)
-          return
-        }
         CoroutineScope(Dispatchers.IO).launch {
           try {
             val uri = call.argument<String>("uri") as String
@@ -414,10 +410,6 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
       }
 
       "copyTo" -> {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-          result.error("PluginError", "copyTo is only supported on Android N and above", null)
-          return
-        }
         CoroutineScope(Dispatchers.IO).launch {
           try {
             val uri = call.argument<String>("uri") as String
@@ -718,11 +710,8 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
 
   private fun documentFileFromUri(uri: String, isDir: Boolean?): DocumentFile? {
     val uriObj = uri.toUri()
-    val isDirRes = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+    val isDirRes =
       isDir ?: DocumentsContract.isTreeUri(uriObj)
-    } else {
-      throw Exception("Auto-detect 'isDir' is only supported on Android N and above")
-    }
     return documentFileFromUriObj(uriObj, isDirRes)
   }
 
