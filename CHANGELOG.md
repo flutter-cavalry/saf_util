@@ -1,3 +1,7 @@
+## 2.1.0
+
+- Add `throws` parameter to `stat` to control whether to throw an exception when the URI does not exist or is inaccessible.
+
 ## 2.0.0
 
 - Update to Kotlin 2.2.0

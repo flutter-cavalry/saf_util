@@ -167,9 +167,22 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
           try {
             val uri = call.argument<String>("uri") as String
             val isDir = call.argument<Boolean>("isDir")
+            val throws = call.argument<Boolean>("throws") ?: false
 
             val df = documentFileFromUri(uri, isDir)
-            if (df == null || !df.exists()) {
+            if (df == null) {
+              if (throws) {
+                throw Exception("Failed to get DocumentFile from $uri")
+              }
+              launch(Dispatchers.Main) {
+                result.success(null)
+              }
+              return@launch
+            }
+            if (!df.exists()) {
+              if (throws) {
+                throw Exception("DocumentFile at $uri does not exist")
+              }
               launch(Dispatchers.Main) {
                 result.success(null)
               }

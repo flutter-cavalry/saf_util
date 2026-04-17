@@ -72,8 +72,9 @@ class SafUtil {
   /// [uri] is the URI of the file or directory.
   /// [isDir] is true if the URI is a directory. [null] means
   /// auto-detect.
-  Future<SafDocumentFile?> stat(String uri, bool? isDir) {
-    return SafUtilPlatform.instance.stat(uri, isDir);
+  /// [throws] when true, throws an exception if the URI does not exist or is inaccessible.
+  Future<SafDocumentFile?> stat(String uri, bool? isDir, {bool? throws}) {
+    return SafUtilPlatform.instance.stat(uri, isDir, throws: throws);
   }
 
   /// Checks if the specified file or directory exists.
