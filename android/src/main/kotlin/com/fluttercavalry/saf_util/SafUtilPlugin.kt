@@ -25,8 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
 import androidx.core.net.toUri
-
-
+import android.provider.MediaStore
 /** SafUtilPlugin */
 class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   /// The MethodChannel that will the communication between Flutter and native Android
@@ -506,26 +505,43 @@ class SafUtilPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
             return
           }
 
-          // Store the result to return the URI later
           pendingResult = result
-          val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-          intent.addCategory(Intent.CATEGORY_OPENABLE)
-          if (initialUri != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-              intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, initialUri.toUri())
+          val intent: Intent
+          val isImageOnly = mimeTypes.size == 1 && mimeTypes[0] == "image/*"
+          if (isImageOnly) {
+            if (Build.VERSION.SDK_INT >= 33) {
+              intent = Intent(MediaStore.ACTION_PICK_IMAGES)
+              if (multiple) {
+                intent.putExtra(MediaStore.EXTRA_PICK_IMAGES_MAX, 100)
+              }
+            } else {
+              intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+              if (multiple) {
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple)
+              }
             }
-          }
-          if (multiple) {
-            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-          }
 
-          if (mimeTypes.isEmpty()) {
-            intent.type = "*/*"
-          } else if (mimeTypes.size == 1) {
-            intent.type = mimeTypes[0]
           } else {
-            intent.type = "*/*"
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toTypedArray())
+
+            intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+            intent.addCategory(Intent.CATEGORY_OPENABLE)
+
+            if (initialUri != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+              intent.putExtra(
+                DocumentsContract.EXTRA_INITIAL_URI,
+                initialUri.toUri()
+              )
+            }
+
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, multiple)
+            if (mimeTypes.isEmpty()) {
+              intent.type = "*/*"
+            } else if (mimeTypes.size == 1) {
+              intent.type = mimeTypes[0]
+            } else {
+              intent.type = "*/*"
+              intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toTypedArray())
+            }
           }
 
           activity?.startActivityForResult(intent, requestCodeOpenFiles)
