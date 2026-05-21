@@ -1,3 +1,7 @@
+## 2.2.0
+
+- Add `pickMedia`.
+
 ## 2.1.0
 
 - Add `throws` parameter to `stat` to control whether to throw an exception when the URI does not exist or is inaccessible.
