@@ -48,6 +48,23 @@ class SafUtil {
     );
   }
 
+  /// Shows a media picker dialog and returns selected media as [SafDocumentFile].
+  ///
+  /// [multiple] is true if multiple media files can be selected.
+  /// [mode] controls what can be picked and must be one of:
+  /// - 'photo'
+  /// - 'video'
+  /// - 'all'
+  Future<List<SafDocumentFile>?> pickMedia({
+    bool multiple = true,
+    String mode = 'all',
+  }) {
+    return SafUtilPlatform.instance.pickMedia(
+      multiple: multiple,
+      mode: mode,
+    );
+  }
+
   /// Lists the contents of the specified directory URI.
   /// Returns a list of [SafDocumentFile] objects.
   ///

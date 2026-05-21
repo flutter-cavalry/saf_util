@@ -80,6 +80,19 @@ class MethodChannelSafUtil extends SafUtilPlatform {
   }
 
   @override
+  Future<List<SafDocumentFile>?> pickMedia({
+    bool multiple = true,
+    String mode = 'all',
+  }) async {
+    final maps = await methodChannel
+        .invokeListMethod<Map<dynamic, dynamic>>('pickMedia', {
+      'multiple': multiple,
+      'mode': mode,
+    });
+    return maps?.map((map) => SafDocumentFile.fromMap(map)).toList();
+  }
+
+  @override
   Future<List<String>?> openFiles({
     String? initialUri,
     List<String>? mimeTypes,

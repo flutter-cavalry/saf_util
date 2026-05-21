@@ -90,6 +90,13 @@ abstract class SafUtilPlatform extends PlatformInterface {
     throw UnimplementedError('pickFiles() has not been implemented.');
   }
 
+  Future<List<SafDocumentFile>?> pickMedia({
+    bool multiple = true,
+    String mode = 'all',
+  }) {
+    throw UnimplementedError('pickMedia() has not been implemented.');
+  }
+
   Future<List<String>?> openFiles({
     String? initialUri,
     List<String>? mimeTypes,
