@@ -1,3 +1,7 @@
+## 3.1.0
+
+- Set `length` to -1 when the length is unknown, which is consistent with the behavior of `DocumentFile.length()` in Android.
+
 ## 3.0.0
 
 - **Breaking**: Migrate to AGP 9

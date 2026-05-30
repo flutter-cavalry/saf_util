@@ -10,16 +10,17 @@ class MethodChannelSafUtil extends SafUtilPlatform {
   final methodChannel = const MethodChannel('saf_util');
 
   @override
-  Future<SafDocumentFile?> pickDirectory(
-      {String? initialUri,
-      bool? writePermission,
-      bool? persistablePermission}) async {
-    final map =
-        await methodChannel.invokeMapMethod<String, dynamic>('pickDirectory', {
-      'initialUri': initialUri,
-      'writePermission': writePermission,
-      'persistablePermission': persistablePermission,
-    });
+  Future<SafDocumentFile?> pickDirectory({
+    String? initialUri,
+    bool? writePermission,
+    bool? persistablePermission,
+  }) async {
+    final map = await methodChannel
+        .invokeMapMethod<String, dynamic>('pickDirectory', {
+          'initialUri': initialUri,
+          'writePermission': writePermission,
+          'persistablePermission': persistablePermission,
+        });
     if (map == null) {
       return null;
     }
@@ -27,10 +28,11 @@ class MethodChannelSafUtil extends SafUtilPlatform {
   }
 
   @override
-  Future<String?> openDirectory(
-      {String? initialUri,
-      bool? writePermission,
-      bool? persistablePermission}) async {
+  Future<String?> openDirectory({
+    String? initialUri,
+    bool? writePermission,
+    bool? persistablePermission,
+  }) async {
     final res = await pickDirectory(
       initialUri: initialUri,
       writePermission: writePermission,
@@ -57,10 +59,7 @@ class MethodChannelSafUtil extends SafUtilPlatform {
     String? initialUri,
     List<String>? mimeTypes,
   }) async {
-    final res = await pickFile(
-      initialUri: initialUri,
-      mimeTypes: mimeTypes,
-    );
+    final res = await pickFile(initialUri: initialUri, mimeTypes: mimeTypes);
     return res?.uri;
   }
 
@@ -68,14 +67,12 @@ class MethodChannelSafUtil extends SafUtilPlatform {
   Future<List<SafDocumentFile>?> pickFiles({
     String? initialUri,
     List<String>? mimeTypes,
-    multiple = true,
+    bool multiple = true,
   }) async {
-    final maps = await methodChannel
-        .invokeListMethod<Map<dynamic, dynamic>>('pickFiles', {
-      'initialUri': initialUri,
-      'mimeTypes': mimeTypes,
-      'multiple': multiple,
-    });
+    final maps = await methodChannel.invokeListMethod<Map<dynamic, dynamic>>(
+      'pickFiles',
+      {'initialUri': initialUri, 'mimeTypes': mimeTypes, 'multiple': multiple},
+    );
     return maps?.map((map) => SafDocumentFile.fromMap(map)).toList();
   }
 
@@ -84,11 +81,10 @@ class MethodChannelSafUtil extends SafUtilPlatform {
     bool multiple = true,
     String mode = 'all',
   }) async {
-    final maps = await methodChannel
-        .invokeListMethod<Map<dynamic, dynamic>>('pickMedia', {
-      'multiple': multiple,
-      'mode': mode,
-    });
+    final maps = await methodChannel.invokeListMethod<Map<dynamic, dynamic>>(
+      'pickMedia',
+      {'multiple': multiple, 'mode': mode},
+    );
     return maps?.map((map) => SafDocumentFile.fromMap(map)).toList();
   }
 
@@ -96,7 +92,7 @@ class MethodChannelSafUtil extends SafUtilPlatform {
   Future<List<String>?> openFiles({
     String? initialUri,
     List<String>? mimeTypes,
-    multiple = true,
+    bool multiple = true,
   }) async {
     final res = await pickFiles(
       initialUri: initialUri,
@@ -108,8 +104,10 @@ class MethodChannelSafUtil extends SafUtilPlatform {
 
   @override
   Future<List<SafDocumentFile>> list(String uri) async {
-    final maps = await methodChannel
-        .invokeListMethod<Map<dynamic, dynamic>>('list', {'uri': uri});
+    final maps = await methodChannel.invokeListMethod<Map<dynamic, dynamic>>(
+      'list',
+      {'uri': uri},
+    );
     return (maps ?? []).map((map) => SafDocumentFile.fromMap(map)).toList();
   }
 
@@ -127,10 +125,11 @@ class MethodChannelSafUtil extends SafUtilPlatform {
 
   @override
   Future<SafDocumentFile?> stat(String uri, bool? isDir, {bool? throws}) async {
-    final map = await methodChannel.invokeMapMethod<String, dynamic>(
-      'stat',
-      {'uri': uri, 'isDir': isDir, 'throws': throws},
-    );
+    final map = await methodChannel.invokeMapMethod<String, dynamic>('stat', {
+      'uri': uri,
+      'isDir': isDir,
+      'throws': throws,
+    });
     if (map == null) {
       return null;
     }
@@ -139,10 +138,10 @@ class MethodChannelSafUtil extends SafUtilPlatform {
 
   @override
   Future<bool> exists(String uri, bool isDir) async {
-    final res = await methodChannel.invokeMethod<bool>(
-      'exists',
-      {'uri': uri, 'isDir': isDir},
-    );
+    final res = await methodChannel.invokeMethod<bool>('exists', {
+      'uri': uri,
+      'isDir': isDir,
+    });
     if (res == null) {
       throw Exception('Failed to check if file exists: $uri');
     }
@@ -151,10 +150,10 @@ class MethodChannelSafUtil extends SafUtilPlatform {
 
   @override
   Future<void> delete(String uri, bool isDir) async {
-    final res = await methodChannel.invokeMethod<bool>(
-      'delete',
-      {'uri': uri, 'isDir': isDir},
-    );
+    final res = await methodChannel.invokeMethod<bool>('delete', {
+      'uri': uri,
+      'isDir': isDir,
+    });
     if (res != true) {
       throw Exception('Failed to delete file: $uri');
     }
@@ -162,10 +161,10 @@ class MethodChannelSafUtil extends SafUtilPlatform {
 
   @override
   Future<SafDocumentFile> mkdirp(String uri, List<String> names) async {
-    final map = await methodChannel.invokeMapMethod<String, dynamic>(
-      'mkdirp',
-      {'uri': uri, 'names': names},
-    );
+    final map = await methodChannel.invokeMapMethod<String, dynamic>('mkdirp', {
+      'uri': uri,
+      'names': names,
+    });
     if (map == null) {
       throw Exception('Failed to create directory: $uri');
     }
@@ -174,10 +173,10 @@ class MethodChannelSafUtil extends SafUtilPlatform {
 
   @override
   Future<SafDocumentFile?> child(String uri, List<String> names) async {
-    final map = await methodChannel.invokeMapMethod<String, dynamic>(
-      'child',
-      {'uri': uri, 'names': names},
-    );
+    final map = await methodChannel.invokeMapMethod<String, dynamic>('child', {
+      'uri': uri,
+      'names': names,
+    });
     if (map == null) {
       return null;
     }
@@ -186,10 +185,11 @@ class MethodChannelSafUtil extends SafUtilPlatform {
 
   @override
   Future<SafDocumentFile> rename(String uri, bool isDir, String newName) async {
-    final map = await methodChannel.invokeMapMethod<String, dynamic>(
-      'rename',
-      {'uri': uri, 'isDir': isDir, 'newName': newName},
-    );
+    final map = await methodChannel.invokeMapMethod<String, dynamic>('rename', {
+      'uri': uri,
+      'isDir': isDir,
+      'newName': newName,
+    });
     if (map == null) {
       throw Exception('Failed to rename: $uri');
     }
@@ -198,16 +198,17 @@ class MethodChannelSafUtil extends SafUtilPlatform {
 
   @override
   Future<SafDocumentFile> moveTo(
-      String uri, bool isDir, String parentUri, String newParentUri) async {
-    final map = await methodChannel.invokeMapMethod<String, dynamic>(
-      'moveTo',
-      {
-        'uri': uri,
-        'isDir': isDir,
-        'parentUri': parentUri,
-        'newParentUri': newParentUri
-      },
-    );
+    String uri,
+    bool isDir,
+    String parentUri,
+    String newParentUri,
+  ) async {
+    final map = await methodChannel.invokeMapMethod<String, dynamic>('moveTo', {
+      'uri': uri,
+      'isDir': isDir,
+      'parentUri': parentUri,
+      'newParentUri': newParentUri,
+    });
     if (map == null) {
       throw Exception('Failed to move: $uri');
     }
@@ -216,11 +217,15 @@ class MethodChannelSafUtil extends SafUtilPlatform {
 
   @override
   Future<SafDocumentFile> copyTo(
-      String uri, bool isDir, String newParentUri) async {
-    final map = await methodChannel.invokeMapMethod<String, dynamic>(
-      'copyTo',
-      {'uri': uri, 'isDir': isDir, 'newParentUri': newParentUri},
-    );
+    String uri,
+    bool isDir,
+    String newParentUri,
+  ) async {
+    final map = await methodChannel.invokeMapMethod<String, dynamic>('copyTo', {
+      'uri': uri,
+      'isDir': isDir,
+      'newParentUri': newParentUri,
+    });
     if (map == null) {
       throw Exception('Failed to copy: $uri');
     }
@@ -236,26 +241,22 @@ class MethodChannelSafUtil extends SafUtilPlatform {
     String? format,
     int? quality,
   }) async {
-    final res = await methodChannel.invokeMethod<bool>(
-      'saveThumbnailToFile',
-      {
-        'uri': uri.toString(),
-        'width': width,
-        'height': height,
-        'destPath': destPath,
-        'format': format,
-        'quality': quality,
-      },
-    );
+    final res = await methodChannel.invokeMethod<bool>('saveThumbnailToFile', {
+      'uri': uri.toString(),
+      'width': width,
+      'height': height,
+      'destPath': destPath,
+      'format': format,
+      'quality': quality,
+    });
     return res ?? false;
   }
 
   @override
   Future<int> getFileDescriptor(String uri) async {
-    final res = await methodChannel.invokeMethod<int>(
-      'getFileDescriptor',
-      {'uri': uri},
-    );
+    final res = await methodChannel.invokeMethod<int>('getFileDescriptor', {
+      'uri': uri,
+    });
     if (res == null) {
       throw Exception('Failed to get file descriptor: $uri');
     }
@@ -264,10 +265,7 @@ class MethodChannelSafUtil extends SafUtilPlatform {
 
   @override
   Future<void> closeFileDescriptor(int fd) {
-    return methodChannel.invokeMethod<void>(
-      'closeFileDescriptor',
-      {'fd': fd},
-    );
+    return methodChannel.invokeMethod<void>('closeFileDescriptor', {'fd': fd});
   }
 
   @override
@@ -278,11 +276,7 @@ class MethodChannelSafUtil extends SafUtilPlatform {
   }) async {
     final res = await methodChannel.invokeMethod<bool>(
       'hasPersistedPermission',
-      {
-        'uri': uri,
-        'checkRead': checkRead,
-        'checkWrite': checkWrite,
-      },
+      {'uri': uri, 'checkRead': checkRead, 'checkWrite': checkWrite},
     );
     if (res == null) {
       throw Exception('Failed to check persisted permission: $uri');
@@ -291,15 +285,15 @@ class MethodChannelSafUtil extends SafUtilPlatform {
   }
 
   @override
-  Future<void> releasePersistedPermission(String uri,
-      {bool read = true, bool write = false}) async {
-    await methodChannel.invokeMethod<void>(
-      'releasePersistedPermission',
-      {
-        'uri': uri,
-        'read': read,
-        'write': write,
-      },
-    );
+  Future<void> releasePersistedPermission(
+    String uri, {
+    bool read = true,
+    bool write = false,
+  }) async {
+    await methodChannel.invokeMethod<void>('releasePersistedPermission', {
+      'uri': uri,
+      'read': read,
+      'write': write,
+    });
   }
 }
