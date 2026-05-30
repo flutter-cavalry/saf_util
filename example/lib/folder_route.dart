@@ -25,7 +25,10 @@ class _FolderRouteState extends State<FolderRoute> {
   @override
   void initState() {
     super.initState();
-    _reload();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _reload();
+    });
   }
 
   @override
@@ -175,12 +178,12 @@ class _FolderRouteState extends State<FolderRoute> {
                   const Icon(Icons.folder),
                   Text(df.name),
                   IconButton(
-                      onPressed: () {
+                      onPressed: () async {
                         final folderRoute = FolderRoute(
                           uri: df.uri,
                           name: df.name,
                         );
-                        Navigator.push<void>(
+                        await Navigator.push<void>(
                           context,
                           MaterialPageRoute(builder: (context) => folderRoute),
                         );

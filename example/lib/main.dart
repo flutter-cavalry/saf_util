@@ -1,7 +1,8 @@
 import 'package:fc_quick_dialog/fc_quick_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:saf_util/saf_util.dart';
-import 'package:saf_util_example/folder_route.dart';
+
+import 'folder_route.dart';
 
 void main() {
   runApp(const MaterialApp(home: MyApp()));
@@ -100,6 +101,7 @@ class _MyAppState extends State<MyApp> {
                     String summary =
                         'You have selected ${files.length} files:\n';
                     for (final file in files) {
+                      // ignore: use_string_buffers
                       summary +=
                           '${file.name}\nSize: ${file.length}\nUri:${file.uri}\n\n';
                     }
@@ -131,6 +133,7 @@ class _MyAppState extends State<MyApp> {
                     String summary =
                         'You have selected ${files.length} files:\n';
                     for (final file in files) {
+                      // ignore: use_string_buffers
                       summary +=
                           '${file.name}\nSize: ${file.length}\nUri:${file.uri}\n\n';
                     }
