@@ -515,7 +515,7 @@ class SafUtilPlugin :
             "pickFiles" -> {
                 try {
                     val initialUri = call.argument<String>("initialUri")
-                    val multiple = call.argument<Boolean>("multiple") ?: false
+                    val multiple = call.argument<Boolean>("multiple") ?: true
                     val mimeTypes = call.argument<ArrayList<String>>("mimeTypes") ?: arrayListOf()
 
                     if (activity == null) {
