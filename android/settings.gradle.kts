@@ -1,1 +1,1 @@
-rootProject.name = 'saf_util'
+rootProject.name = "saf_util"
