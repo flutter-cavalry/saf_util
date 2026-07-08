@@ -6,7 +6,7 @@ Util functions for SAF (Storage Access Framework). Note that this package doesn'
 
 ## Usage
 
-[Documentation](https://pub.dev/documentation/saf_util/latest/saf_util/)
+[Documentation](https://pub.dev/documentation/saf_util/latest/saf_util/SafUtil-class.html)
 
 ## API Summary
 
