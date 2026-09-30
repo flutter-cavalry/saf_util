@@ -65,6 +65,12 @@ class SafUtilPlugin :
     override fun onAttachedToActivity(binding: ActivityPluginBinding) {
         activity = binding.activity
         binding.addActivityResultListener { requestCode, resultCode, data ->
+            if (requestCode != requestCodeOpenDocumentTree &&
+                requestCode != requestCodeOpenFiles &&
+                requestCode != requestCodePickMedia
+            ) {
+                return@addActivityResultListener false
+            }
             onActivityResult(requestCode, resultCode, data)
             true
         }
@@ -733,6 +739,12 @@ class SafUtilPlugin :
         resultCode: Int,
         data: Intent?,
     ) {
+        if (requestCode != requestCodeOpenDocumentTree &&
+            requestCode != requestCodeOpenFiles &&
+            requestCode != requestCodePickMedia
+        ) {
+            return
+        }
         if (pendingResult == null) {
             return
         }
@@ -798,9 +810,6 @@ class SafUtilPlugin :
                 } else {
                     pendingResult?.success(null)
                 }
-            } else {
-                // Ignore other requests.
-                pendingResult?.success(null)
             }
         } catch (err: Exception) {
             pendingResult?.error("PluginError", err.message, null)
