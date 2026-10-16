@@ -2,34 +2,28 @@
 
 [![pub package](https://img.shields.io/pub/v/saf_util.svg)](https://pub.dev/packages/saf_util)
 
-Util functions for SAF (Storage Access Framework). Note that this package doesn't provide any read / write functions (go to [saf_stream](https://github.com/flutter-cavalry/saf_stream) for that).
+Utilities for Android's Storage Access Framework (SAF). This package helps you
+pick and manage documents, but it does not read or write file contents. For
+streaming file data, see [saf_stream](https://github.com/flutter-cavalry/saf_stream).
 
 ## Usage
 
-[Documentation](https://pub.dev/documentation/saf_util/latest/saf_util/SafUtil-class.html)
+See the [API documentation](https://pub.dev/documentation/saf_util/latest/saf_util/SafUtil-class.html).
 
 ## API Summary
 
 - Pickers
-  - `pickDirectory` opens a directory picker.
-  - `pickFiles` opens a file picker.
-  - `pickMedia` opens a media picker.
-- `DocumentFile` wrappers
-  - `list` lists directory contents.
-  - `stat` gets file/folder stats.
-  - `exists` checks if a file/folder exists.
-  - `delete` deletes a file/folder.
-  - `mkdirp` creates a directory and all its parent directories if they don't exist.
-  - `child` gets a child `DocumentFile` by name.
-  - `rename` renames a file/folder.
-  - `moveTo` moves a file/folder to another directory.
-  - `copyTo` copies a file/folder to another directory.
-  - `saveThumbnailToFile` saves a thumbnail of a file to a specified file.
-- File descriptor utils
-  - `getFileDescriptor` gets a file descriptor for a file.
-  - `closeFileDescriptor` closes a file descriptor.
-- Permission utils
-  - `hasPersistedPermission` checks if the app has persisted permission for a `Uri`.
-  - `releasePersistedPermission` releases persisted permission for a `Uri`.
-- Other utils
-  - `documentFileFromUri` creates a `DocumentFile` from a `Uri`.
+  - `pickDirectory`, `pickFile`, and `pickFiles` open the system document picker.
+  - `pickMedia` opens the system photo picker (Android 13 / API 33 and later).
+- Document operations
+  - `documentFileFromUri` and `stat` create a `SafDocumentFile` from a content URI.
+  - `list`, `child`, and `exists` inspect documents and directories.
+  - `mkdirp`, `rename`, `moveTo`, `copyTo`, and `delete` manage documents.
+  - `saveThumbnailToFile` saves an image or video thumbnail to a local file.
+- Permissions and descriptors
+  - `hasPersistedPermission` and `releasePersistedPermission` manage persisted URI access.
+  - `getFileDescriptor` opens a document for reading; close it with `closeFileDescriptor`.
+
+`SafDocumentFile` provides a document's content URI, display name, directory
+status, size, and last-modified time. Its `length` is `-1` when the size is
+unknown.

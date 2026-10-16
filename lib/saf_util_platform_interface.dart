@@ -2,11 +2,22 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 import 'saf_util_method_channel.dart';
 
+/// Metadata for a document selected or managed through the Storage Access
+/// Framework.
 class SafDocumentFile {
+  /// The document's content URI.
   final String uri;
+
+  /// The document's display name.
   final String name;
+
+  /// Whether the document is a directory.
   final bool isDir;
+
+  /// The document's size in bytes, or `-1` if its size is unknown.
   final int length;
+
+  /// The time the document was last modified, in milliseconds since epoch.
   final int lastModified;
 
   SafDocumentFile({

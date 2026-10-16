@@ -1,11 +1,15 @@
 import 'saf_util_platform_interface.dart';
 
+export 'saf_util_platform_interface.dart' show SafDocumentFile;
+
+/// Utilities for picking and managing documents through Android's Storage
+/// Access Framework (SAF).
 class SafUtil {
-  /// Shows a folder picker dialog and returns the selected folder as [SafDocumentFile].
+  /// Opens a folder picker and returns the selected folder.
   ///
-  /// [initialUri] is the initial URI to show in the dialog.
-  /// [writePermission] is true if the folder should have write permission.
-  /// [persistablePermission] is true if the permission should be persistable.
+  /// Returns `null` if the user cancels. [initialUri] optionally selects the
+  /// initial location. [writePermission] requests write access, and
+  /// [persistablePermission] requests access that can be retained.
   Future<SafDocumentFile?> pickDirectory({
     String? initialUri,
     bool? writePermission,
@@ -18,11 +22,10 @@ class SafUtil {
     );
   }
 
-  /// Shows a file picker dialog and returns the selected file [SafDocumentFile].
-  /// This calls [pickFiles] with [multiple] set to false.
+  /// Opens a file picker and returns the selected file.
   ///
-  /// [initialUri] is the initial URI to show in the dialog.
-  /// [mimeTypes] is a list of MIME types to filter the files.
+  /// Returns `null` if the user cancels. [initialUri] optionally selects the
+  /// initial location. [mimeTypes] optionally restricts the selectable files.
   Future<SafDocumentFile?> pickFile({
     String? initialUri,
     List<String>? mimeTypes,
@@ -33,11 +36,11 @@ class SafUtil {
     );
   }
 
-  /// Shows a file picker dialog and returns a list of selected file [SafDocumentFile].
+  /// Opens a file picker and returns the selected files.
   ///
-  /// [initialUri] is the initial URI to show in the dialog.
-  /// [mimeTypes] is a list of MIME types to filter the files.
-  /// [multiple] is true if multiple files can be selected.
+  /// Returns `null` if the user cancels. [initialUri] optionally selects the
+  /// initial location. [mimeTypes] optionally restricts the selectable files.
+  /// Set [multiple] to `false` to allow only one selection.
   Future<List<SafDocumentFile>?> pickFiles({
     String? initialUri,
     List<String>? mimeTypes,
@@ -50,13 +53,11 @@ class SafUtil {
     );
   }
 
-  /// Shows a media picker dialog and returns selected media as [SafDocumentFile].
+  /// Opens Android's system photo picker and returns the selected media.
   ///
-  /// [multiple] is true if multiple media files can be selected.
-  /// [mode] controls what can be picked and must be one of:
-  /// - 'photo'
-  /// - 'video'
-  /// - 'all'
+  /// Returns `null` if the user cancels. This API requires Android 13 (API 33)
+  /// or later. Set [multiple] to `false` to allow only one selection. [mode]
+  /// must be `photo`, `video`, or `all`.
   Future<List<SafDocumentFile>?> pickMedia({
     bool multiple = true,
     String mode = 'all',
@@ -64,84 +65,70 @@ class SafUtil {
     return SafUtilPlatform.instance.pickMedia(multiple: multiple, mode: mode);
   }
 
-  /// Lists the contents of the specified directory URI.
-  /// Returns a list of [SafDocumentFile] objects.
-  ///
-  /// [uri] is the URI of the directory.
+  /// Lists the immediate contents of the directory identified by [uri].
   Future<List<SafDocumentFile>> list(String uri) {
     return SafUtilPlatform.instance.list(uri);
   }
 
-  /// Gets a [SafDocumentFile] object from the specified URI.
+  /// Creates a [SafDocumentFile] for [uri].
   ///
-  /// [uri] is the URI of the file or directory.
-  /// [isDir] is true if the URI is a directory. [null] means
-  /// auto-detect.
+  /// Set [isDir] to indicate whether [uri] identifies a directory. If it is
+  /// `null`, the type is detected automatically.
   Future<SafDocumentFile?> documentFileFromUri(String uri, bool? isDir) {
     return SafUtilPlatform.instance.documentFileFromUri(uri, isDir);
   }
 
-  /// Gets a [SafDocumentFile] object from the specified URI.
-  /// Unlike [documentFileFromUri], this method returns null
-  /// if the URI does not exist.
+  /// Returns a [SafDocumentFile] for [uri], or `null` if it does not exist.
   ///
-  /// [uri] is the URI of the file or directory.
-  /// [isDir] is true if the URI is a directory. [null] means
-  /// auto-detect.
-  /// [throws] when true, throws an exception if the URI does not exist or is inaccessible.
+  /// Set [isDir] to indicate whether [uri] identifies a directory. If it is
+  /// `null`, the type is detected automatically. When [throws] is `true`, an
+  /// exception is thrown if the URI does not exist or cannot be accessed.
   Future<SafDocumentFile?> stat(String uri, bool? isDir, {bool? throws}) {
     return SafUtilPlatform.instance.stat(uri, isDir, throws: throws);
   }
 
-  /// Checks if the specified file or directory exists.
+  /// Checks whether the file or directory identified by [uri] exists.
   ///
-  /// [uri] is the URI of the file or directory.
-  /// [isDir] is true if the URI is a directory.
+  /// Set [isDir] to `true` if [uri] identifies a directory.
   Future<bool> exists(String uri, bool isDir) {
     return SafUtilPlatform.instance.exists(uri, isDir);
   }
 
-  /// Deletes the specified file or directory.
+  /// Deletes the file or directory identified by [uri].
   ///
-  /// [uri] is the URI of the file or directory.
-  /// [isDir] is true if the URI is a directory.
+  /// Set [isDir] to `true` if [uri] identifies a directory.
   Future<void> delete(String uri, bool isDir) {
     return SafUtilPlatform.instance.delete(uri, isDir);
   }
 
-  /// Creates a directory and all its parent directories.
-  /// Returns the created directory as a [SafDocumentFile] object.
+  /// Creates the directory path described by [names] under [uri].
   ///
-  /// [uri] is the URI of the directory to create.
-  /// [names] is a list of directory names to create.
+  /// Returns the final directory in the path.
   Future<SafDocumentFile> mkdirp(String uri, List<String> names) {
     return SafUtilPlatform.instance.mkdirp(uri, names);
   }
 
-  /// Gets the child file or directory with the specified name.
+  /// Finds a child file or directory by traversing [names] under [uri].
   ///
-  /// [uri] is the URI of the parent directory.
-  /// [names] is a list of directory names to traverse.
+  /// Returns `null` if the child path does not exist. An empty [names] list
+  /// returns the document identified by [uri].
   Future<SafDocumentFile?> child(String uri, List<String> names) {
     return SafUtilPlatform.instance.child(uri, names);
   }
 
-  /// Renames the specified file or directory.
-  /// Returns the renamed file or directory as a [SafDocumentFile] object.
+  /// Renames the file or directory identified by [uri] to [newName].
   ///
-  /// [uri] is the URI of the file or directory.
-  /// [isDir] is true if the URI is a directory.
-  /// [newName] is the new name of the file or directory.
+  /// Returns the renamed document. Set [isDir] to `true` if [uri] identifies a
+  /// directory.
   Future<SafDocumentFile> rename(String uri, bool isDir, String newName) {
     return SafUtilPlatform.instance.rename(uri, isDir, newName);
   }
 
-  /// Moves the specified file or directory to a new parent directory.
-  /// Returns the moved file or directory as a [SafDocumentFile] object.
+  /// Moves a document to a different parent directory.
   ///
-  /// [uri] is the URI of the file or directory.
-  /// [parentUri] is the URI of the current parent directory.
-  /// [newParentUri] is the URI of the new parent directory.
+  /// Returns the moved document. [parentUri] identifies its current parent and
+  /// [newParentUri] identifies the destination parent. Set [isDir] to `true`
+  /// if [uri] identifies a directory.
   Future<SafDocumentFile> moveTo(
     String uri,
     bool isDir,
@@ -151,28 +138,19 @@ class SafUtil {
     return SafUtilPlatform.instance.moveTo(uri, isDir, parentUri, newParentUri);
   }
 
-  /// Copies the specified file or directory to a new parent directory.
-  /// Returns the copied file or directory as a [SafDocumentFile] object.
+  /// Copies a document to a different parent directory.
   ///
-  /// [uri] is the URI of the file or directory.
-  /// [newParentUri] is the URI of the new parent directory.
+  /// Returns the copied document. Set [isDir] to `true` if [uri] identifies a
+  /// directory.
   Future<SafDocumentFile> copyTo(String uri, bool isDir, String newParentUri) {
     return SafUtilPlatform.instance.copyTo(uri, isDir, newParentUri);
   }
 
-  /// Saves the thumbnail of the specified document [uri] to a local file [destPath].
-  /// Image and video thumbnails are supported.
-  /// Returns true if the thumbnail is saved successfully, or false if no
-  /// thumbnail found in the document.
+  /// Saves an image or video thumbnail for [uri] to [destPath].
   ///
-  /// [uri] is the URI of the document.
-  /// [destPath] is the destination file path to save the thumbnail.
-  /// [width] is the max width of the thumbnail.
-  /// [height] is the max height of the thumbnail.
-  /// [format] is the format of the thumbnail file, default is 'jpeg'.
-  /// Supported formats are 'jpeg' and 'png'.
-  /// [quality] is the quality of the thumbnail file,
-  /// defaults to 80 for 'jpeg' and 100 for 'png'.
+  /// Returns `true` if a thumbnail was saved, or `false` if none was available.
+  /// [width] and [height] set the maximum dimensions. [format] can be `jpeg`
+  /// (the default) or `png`. [quality] defaults to 80 for JPEG and 100 for PNG.
   Future<bool> saveThumbnailToFile({
     required String uri,
     required int width,
@@ -191,13 +169,14 @@ class SafUtil {
     );
   }
 
-  /** Deprecated functions. */
+  /// Deprecated URI-returning picker methods. Use the corresponding `pick*`
+  /// methods instead.
 
-  /// Shows a folder picker dialog and returns the selected folder URI.
+  /// Opens a folder picker and returns the selected folder URI.
   ///
-  /// [initialUri] is the initial URI to show in the dialog.
-  /// [writePermission] is true if the folder should have write permission.
-  /// [persistablePermission] is true if the permission should be persistable.
+  /// [initialUri] optionally selects the initial location. [writePermission]
+  /// requests write access, and [persistablePermission] requests retainable
+  /// access.
   @Deprecated('Use [pickDirectory] instead, which returns a [SafDocumentFile].')
   Future<String?> openDirectory({
     String? initialUri,
@@ -241,20 +220,23 @@ class SafUtil {
     );
   }
 
-  /// Gets the file descriptor of the specified URI.
+  /// Opens [uri] for reading and returns its file descriptor.
+  ///
+  /// Close the descriptor with [closeFileDescriptor] when it is no longer
+  /// needed.
   Future<int> getFileDescriptor(String uri) {
     return SafUtilPlatform.instance.getFileDescriptor(uri);
   }
 
-  /// Closes the specified file descriptor.
+  /// Closes the file descriptor returned by [getFileDescriptor].
   Future<void> closeFileDescriptor(int fd) {
     return SafUtilPlatform.instance.closeFileDescriptor(fd);
   }
 
-  /// Checks if the specified URI has persisted permission.
-  /// Use [checkRead] and [checkWrite] to specify the type of permission to check.
-  /// [checkRead] defaults to true.
-  /// [checkWrite] defaults to false.
+  /// Checks whether this app has persisted access to [uri].
+  ///
+  /// [checkRead] controls whether read access is checked (default `true`);
+  /// [checkWrite] controls whether write access is checked (default `false`).
   Future<bool> hasPersistedPermission(
     String uri, {
     bool checkRead = true,
@@ -267,10 +249,10 @@ class SafUtil {
     );
   }
 
-  /// Releases the persisted permission of the specified URI.
-  /// Use [read] and [write] to specify the type of permission to release.
-  /// [read] defaults to true.
-  /// [write] defaults to false.
+  /// Releases persisted access to [uri].
+  ///
+  /// [read] controls whether read access is released (default `true`); [write]
+  /// controls whether write access is released (default `false`).
   Future<void> releasePersistedPermission(
     String uri, {
     bool read = true,
